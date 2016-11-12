@@ -453,8 +453,8 @@ function handleMouseUp(event) {
 function handleMouseMove(event) {
 	if( mouseDown){return;}
 	  
-	var newX = event.clientX-canvas.width/2;
-	var newY = event.clientY-canvas.height/2;
+	var newX = event.clientX-window.innerWidth/2;
+	var newY = event.clientY-window.innerHeight/2;
 
 	var deltaX = newX - lastMouseX
 	var newRotationMatrix = mat4.create();
@@ -462,7 +462,7 @@ function handleMouseMove(event) {
 	mat4.rotate(newRotationMatrix, degToRad(deltaX /20), [0, 1, 0]);
 
 	var deltaY = newY - lastMouseY;
-	mat4.rotate(newRotationMatrix, degToRad(deltaY /20), [1, 0, 0]);
+	mat4.rotate(newRotationMatrix, degToRad(deltaY /120), [1, 0, 0]);
 
 	mat4.multiply(newRotationMatrix, viweRotationMatrix, viweRotationMatrix);
 
