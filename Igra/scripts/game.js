@@ -41,6 +41,8 @@ var lastMouseY = null;
 //DODANA MATRIKA ZA ROTACIJO IGRALCA GLEDE NA MISKO
 var viweRotationMatrix= mat4.create();
 mat4.identity(viweRotationMatrix);
+var exViweRotationMatrix= mat4.create();
+mat4.identity(exViweRotationMatrix);
 
 
 
@@ -316,6 +318,11 @@ function drawScene() {
     // Set the drawing position to the "identity" point, which is
     // the center of the scene.
     mat4.identity(mvMatrix);
+	
+	//POMNOZIMO Z INVERZOM in TRANSPONIRANJEM MATRIKE POGLEDA DA SE IGRALEC PREMIKA GLEDE NA TELO
+	mat4.transpose(exViweRotationMatrix);
+	mat4.inverse(exViweRotationMatrix);
+	mat4.multiply(mvMatrix, exViweRotationMatrix);
 
     // Now move the drawing position a bit to where we want to start
     // drawing the world.
@@ -326,7 +333,7 @@ function drawScene() {
 	
 	//DODANA MATRIKA ZA MISKO (POGLED IGRALCA)
 	mat4.multiply(mvMatrix, viweRotationMatrix);
-	
+	exViweRotationMatrix=viweRotationMatrix;
 	
 
     // Activate textures
@@ -444,24 +451,23 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
-  if (!mouseDown) {
-      return;
-  }
-  var newX = event.clientX;
-  var newY = event.clientY;
+	if( mouseDown){return;}
+	  
+	var newX = event.clientX-canvas.width/2;
+	var newY = event.clientY-canvas.height/2;
 
-  var deltaX = newX - lastMouseX
-  var newRotationMatrix = mat4.create();
-  mat4.identity(newRotationMatrix);
-  mat4.rotate(newRotationMatrix, degToRad(deltaX / 10), [0, 1, 0]);
+	var deltaX = newX - lastMouseX
+	var newRotationMatrix = mat4.create();
+	mat4.identity(newRotationMatrix);
+	mat4.rotate(newRotationMatrix, degToRad(deltaX /20), [0, 1, 0]);
 
-  var deltaY = newY - lastMouseY;
-  mat4.rotate(newRotationMatrix, degToRad(deltaY / 10), [1, 0, 0]);
+	var deltaY = newY - lastMouseY;
+	mat4.rotate(newRotationMatrix, degToRad(deltaY /20), [1, 0, 0]);
 
-  mat4.multiply(newRotationMatrix, viweRotationMatrix, viweRotationMatrix);
+	mat4.multiply(newRotationMatrix, viweRotationMatrix, viweRotationMatrix);
 
-  lastMouseX = newX
-  lastMouseY = newY;
+	lastMouseX = newX
+	lastMouseY = newY;
 }
 
 
@@ -477,8 +483,10 @@ function handleMouseMove(event) {
 //
 function start() {
     canvas = document.getElementById("glcanvas");
-
+	canvas.width = window.innerWidth/1.5;
+	canvas.height = window.innerHeight/1.5;
     gl = initGL(canvas);      // Initialize the GL context
+	
 
     // Only continue if WebGL is available and working
     if (gl) {
@@ -515,7 +523,10 @@ function start() {
                 requestAnimationFrame(animate);
                 handleKeys();
                 drawScene();
+				
             }
         }, 15);
     }
 }
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
