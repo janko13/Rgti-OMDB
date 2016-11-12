@@ -215,7 +215,7 @@ function initTextures() {
     wallTexture.image.onload = function () {
         handleTextureLoaded(wallTexture)
     }
-    wallTexture.image.src = "./assets/wall.png";
+    wallTexture.image.src = "./assets/crate.jpg";
 }
 
 function handleTextureLoaded(texture) {
@@ -482,7 +482,7 @@ function start() {
 
     // Only continue if WebGL is available and working
     if (gl) {
-        gl.clearColor(0.0, 0.0, 0.0, 1.0);                      // Set clear color to black, fully opaque
+        gl.clearColor(0.0, 0.1, 1.0, 0.60);                      // Set clear color to black, fully opaque
         gl.clearDepth(1.0);                                     // Clear everything
         gl.enable(gl.DEPTH_TEST);                               // Enable depth testing
         gl.depthFunc(gl.LEQUAL);                                // Near things obscure far things
