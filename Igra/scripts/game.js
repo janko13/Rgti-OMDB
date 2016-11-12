@@ -31,6 +31,21 @@ var yPosition = 0.4;
 var zPosition = 0;
 var speed = 0;
 
+
+
+//DODANE SPREMENLJIVKE ZA MISKO
+var mouseDown = false;
+var lastMouseX = null;
+var lastMouseY = null;
+
+//DODANA MATRIKA ZA ROTACIJO IGRALCA GLEDE NA MISKO
+var viweRotationMatrix= mat4.create();
+mat4.identity(viweRotationMatrix);
+
+
+
+
+
 // Used to make us "jog" up and down as we move forward.
 var joggingAngle = 0;
 
@@ -307,6 +322,12 @@ function drawScene() {
     mat4.rotate(mvMatrix, degToRad(-pitch), [1, 0, 0]);
     mat4.rotate(mvMatrix, degToRad(-yaw), [0, 1, 0]);
     mat4.translate(mvMatrix, [-xPosition, -yPosition, -zPosition]);
+	
+	
+	//DODANA MATRIKA ZA MISKO (POGLED IGRALCA)
+	mat4.multiply(mvMatrix, viweRotationMatrix);
+	
+	
 
     // Activate textures
     gl.activeTexture(gl.TEXTURE0);
@@ -381,7 +402,9 @@ function handleKeys() {
     } else if (currentlyPressedKeys[34]) {
         // Page Down
         pitchRate = -0.1;
-    } else {
+    } 
+	
+	else {
         pitchRate = 0;
     }
 
@@ -405,6 +428,46 @@ function handleKeys() {
         speed = 0;
     }
 }
+
+
+
+//DODANO MISKA
+
+function handleMouseDown(event) {
+  mouseDown = true;
+  lastMouseX = event.clientX;
+  lastMouseY = event.clientY;
+}
+
+function handleMouseUp(event) {
+  mouseDown = false;
+}
+
+function handleMouseMove(event) {
+  if (!mouseDown) {
+      return;
+  }
+  var newX = event.clientX;
+  var newY = event.clientY;
+
+  var deltaX = newX - lastMouseX
+  var newRotationMatrix = mat4.create();
+  mat4.identity(newRotationMatrix);
+  mat4.rotate(newRotationMatrix, degToRad(deltaX / 10), [0, 1, 0]);
+
+  var deltaY = newY - lastMouseY;
+  mat4.rotate(newRotationMatrix, degToRad(deltaY / 10), [1, 0, 0]);
+
+  mat4.multiply(newRotationMatrix, viweRotationMatrix, viweRotationMatrix);
+
+  lastMouseX = newX
+  lastMouseY = newY;
+}
+
+
+//KONEC SPREMEMBE MISKA
+
+
 
 //
 // start
@@ -437,6 +500,14 @@ function start() {
         // Bind keyboard handling functions to document handlers
         document.onkeydown = handleKeyDown;
         document.onkeyup = handleKeyUp;
+		
+		
+		// DODANO ZA INTERAKCIJO Z MISKO
+		canvas.onmousedown = handleMouseDown;
+		document.onmouseup = handleMouseUp;
+		document.onmousemove = handleMouseMove;
+		
+		
 
         // Set up to draw the scene periodically.
         setInterval(function() {
