@@ -27,7 +27,7 @@ var pitchRate = 0;
 var yaw = 0;
 var yawRate = 0;
 var xPosition = 0;
-var yPosition = 0.4;
+var yPosition = 0.6;
 var zPosition = 0;
 var speed = 0;
 
@@ -370,7 +370,7 @@ function animate() {
             zPosition -= Math.cos(degToRad(yaw)) * speed * elapsed;
 
             joggingAngle += elapsed * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
-            yPosition = Math.sin(degToRad(joggingAngle)) / 20 + 0.4
+            yPosition = Math.sin(degToRad(joggingAngle)) / 40 + 0.4
         }
 
         yaw += yawRate * elapsed;
@@ -434,6 +434,8 @@ function handleKeys() {
     } else {
         speed = 0;
     }
+	
+	
 }
 
 
@@ -451,7 +453,6 @@ function handleMouseUp(event) {
 }
 
 function handleMouseMove(event) {
-	if( mouseDown){return;}
 	  
 	var newX = event.clientX-window.innerWidth/2;
 	var newY = event.clientY-window.innerHeight/2;
@@ -459,7 +460,7 @@ function handleMouseMove(event) {
 	var deltaX = newX - lastMouseX
 	var newRotationMatrix = mat4.create();
 	mat4.identity(newRotationMatrix);
-	mat4.rotate(newRotationMatrix, degToRad(deltaX /20), [0, 1, 0]);
+	mat4.rotate(newRotationMatrix, degToRad(deltaX /80), [0, 1, 0]);
 
 	var deltaY = newY - lastMouseY;
 	mat4.rotate(newRotationMatrix, degToRad(deltaY /120), [1, 0, 0]);
