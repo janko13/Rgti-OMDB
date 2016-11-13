@@ -6,14 +6,14 @@
 
 var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 0
-           [1, 1, 0, 0, 0, 0, 0, 1, 1, 1,], // 1
-           [1, 1, 0, 0, 2, 0, 0, 0, 0, 1,], // 2
-           [1, 0, 0, 0, 0, 2, 0, 0, 0, 1,], // 3
-           [1, 0, 0, 2, 0, 0, 2, 0, 0, 1,], // 4
-           [1, 0, 0, 0, 2, 0, 0, 0, 1, 1,], // 5
-           [1, 1, 1, 0, 0, 0, 0, 1, 1, 1,], // 6
-           [1, 1, 1, 0, 0, 1, 0, 0, 1, 1,], // 7
-           [1, 1, 1, 1, 1, 1, 0, 0, 1, 1,], // 8
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 1
+           [1, 0, 0, 2, 2, 2, 0, 0, 0, 1,], // 2
+           [1, 0, 0, 2, 0, 2, 0, 0, 0, 1,], // 3
+           [1, 0, 0, 2, 0, 2, 0, 0, 0, 1,], // 4
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 1,], // 5
+           [1, 0, 0, 0, 0, 1, 0, 1, 1, 1,], // 6
+           [1, 0, 0, 0, 0, 1, 0, 0, 0, 1,], // 7
+           [1, 0, 0, 0, 0, 1, 0, 0, 0, 1,], // 8
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1,], // 9
            ], mapW = map.length, mapH = map[0].length;
 
@@ -23,15 +23,20 @@ var WIDTH = window.innerWidth,
 	ASPECT = WIDTH / HEIGHT,
 	UNITSIZE = 250,
 	WALLHEIGHT = UNITSIZE / 3,
-	MOVESPEED = 100,
+	MOVESPEED = 200,
 	LOOKSPEED = 0.075,
-	BULLETMOVESPEED = MOVESPEED * 10,
+	BULLETMOVESPEED = MOVESPEED * 20,
 	NUMAI = 5,
 	PROJECTILEDAMAGE = 20;
 // Global vars
 var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
 var healthCube, lastHealthPickup = 0;
+//DODANO:
+var joggingAngle = 0;
+var lastTime = 0;
+var yPosition = 0;
+//
 /*
 var finder = new PF.AStarFinder({ // Defaults to Manhattan heuristic
 	allowDiagonal: true,
@@ -40,7 +45,7 @@ var finder = new PF.AStarFinder({ // Defaults to Manhattan heuristic
 
 // Initialize and run on document ready
 $(document).ready(function() {
-	$('body').append('<div id="intro">Click to start</div>');
+	$('body').append('<div id="intro">Over My Dead Body </br> Click to start</div>');
 	$('#intro').css({width: WIDTH, height: HEIGHT}).one('click', function(e) {
 		e.preventDefault();
 		$(this).fadeOut();
@@ -76,8 +81,8 @@ function init() {
 	controls.movementSpeed = MOVESPEED;
 	controls.lookSpeed = LOOKSPEED;
 	controls.lookVertical = false; // Temporary solution; play on flat surfaces only
-    
-	controls.noFly = true;
+	controls.noFly = false;
+	
 
 	// World objects
 	setupScene();
@@ -104,11 +109,12 @@ function init() {
 		}
 	});
 	
-	// Display HUD
+    // Display HUD
+	$('body').append('<div id="gun"><a><img src="UACIN.png" height="500px" width="1000px" /></a></div>')
 	$('body').append('<canvas id="radar" width="200" height="200"></canvas>');
 	$('body').append('<div id="hud"><p>Health: <span id="health">100</span><br />Score: <span id="score">0</span></p></div>');
-	$('body').append('<div id="credits"><p>Created by <a href="http://www.isaacsukin.com/">Isaac Sukin</a> using <a href="http://mrdoob.github.com/three.js/">Three.js</a><br />WASD to move, mouse to look, click to shoot</p></div>');
-    $('body').append('<div id="gun"><a><img src="UACIN.png" height="500px" width="1000px" /></a></div>')
+	$('body').append('<div id="credits"><p>Created by Martin Turk, Jan Gersak and Jernej Katanec using <a href="http://mrdoob.github.com/three.js/">Three.js</a><br />WASD to move, mouse to look, click to shoot</p></div>');
+    
 	
 	// Set up "hurt" flash
 	$('body').append('<div id="hurt"></div>');
@@ -117,10 +123,19 @@ function init() {
 
 // Helper function for browser frames
 function animate() {
+    //DODANO:
+    var timeNow = new Date().getTime();
+    var elapsed = timeNow - lastTime;
+    //
 	if (runAnim) {
-		requestAnimationFrame(animate);
+	    requestAnimationFrame(animate);
+	    joggingAngle += elapsed * 0.6;
+	    if (controls.moveForward || controls.moveBackward) yPosition = Math.sin(degToRad(joggingAngle)) / 1.5;
+	    else yPosition = 0;
+	    controls.object.translateY(yPosition);
 	}
 	render();
+	lastTime = timeNow;
 }
 
 // Update and display
@@ -292,7 +307,7 @@ function setupScene() {
 	var cube = new t.CubeGeometry(UNITSIZE, WALLHEIGHT, UNITSIZE);
 	var materials = [
 	                 new t.MeshLambertMaterial({/*color: 0x00CCAA,*/map: t.ImageUtils.loadTexture('images/wall-1.jpg')}),
-	                 new t.MeshLambertMaterial({/*color: 0xC5EDA0,*/map: t.ImageUtils.loadTexture('images/wall-2.jpg')}),
+	                 new t.MeshLambertMaterial({/*color: 0xC5EDA0,*/map: t.ImageUtils.loadTexture('images/crate.jpg')}),
 	                 new t.MeshLambertMaterial({color: 0xFBEBCD}),
 	                 ];
 	for (var i = 0; i < mapW; i++) {
@@ -529,6 +544,8 @@ $(window).blur(function() {
 function getRandBetween(lo, hi) {
  return parseInt(Math.floor(Math.random()*(hi-lo+1))+lo, 10);
 }
-
+function degToRad(degrees) {
+    return degrees * Math.PI / 180;
+}
 
 
