@@ -31,11 +31,11 @@ var WIDTH = window.innerWidth,
 // Global vars
 var t = THREE, scene, cam, renderer, controls, clock, projector, model, skin;
 var runAnim = true, mouse = { x: 0, y: 0 }, kills = 0, health = 100;
-var healthCube, lastHealthPickup = 0;
 //DODANO:
 var joggingAngle = 0;
 var lastTime = 0;
 var yPosition = 0;
+var enemies = true;
 //
 /*
 var finder = new PF.AStarFinder({ // Defaults to Manhattan heuristic
@@ -53,15 +53,6 @@ $(document).ready(function() {
 		setInterval(drawRadar, 1000);
 		animate();
 	});
-	/*
-	new t.ColladaLoader().load('models/Yoshi/Yoshi.dae', function(collada) {
-		model = collada.scene;
-		skin = collada.skins[0];
-		model.scale.set(0.2, 0.2, 0.2);
-		model.position.set(0, 5, 0);
-		scene.add(model);
-	});
-	*/
 });
 
 // Setup
@@ -123,12 +114,18 @@ function init() {
 
 // Helper function for browser frames
 function animate() {
-    //DODANO:
+    //DODANO: za nihanje
     var timeNow = new Date().getTime();
     var elapsed = timeNow - lastTime;
     //
+    //DODANO: ce vse pobijes, zmagas
+    if (ai.length == 0)
+        enemies = false;
+    console.log("ai: " + ai.length + " pre:" + enemies);
+    //
 	if (runAnim) {
 	    requestAnimationFrame(animate);
+        //DODANO:
 	    joggingAngle += elapsed * 0.6;
 	    if (controls.moveForward || controls.moveBackward) yPosition = Math.sin(degToRad(joggingAngle)) / 1.5;
 	    else yPosition = 0;
@@ -144,21 +141,6 @@ function render() {
 	var aispeed = delta * MOVESPEED;
 	controls.update(delta); // Move camera
 	
-	// Rotate the health cube
-	healthcube.rotation.x += 0.004
-	healthcube.rotation.y += 0.008;
-	// Allow picking it up once per minute
-	if (Date.now() > lastHealthPickup + 60000) {
-		if (distance(cam.position.x, cam.position.z, healthcube.position.x, healthcube.position.z) < 15 && health != 100) {
-			health = Math.min(health + 50, 100);
-			$('#health').html(health);
-			lastHealthPickup = Date.now();
-		}
-		healthcube.material.wireframe = false;
-	}
-	else {
-		healthcube.material.wireframe = true;
-	}
 
 	// Update bullets. Walk backwards through the list so we can remove items.
 	for (var i = bullets.length-1; i >= 0; i--) {
@@ -192,6 +174,7 @@ function render() {
 				break;
 			}
 		}
+	    
 		// Bullet hits player
 		if (distance(p.x, p.z, cam.position.x, cam.position.z) < 25 && b.owner != cam) {
 			$('#hurt').fadeIn(75);
@@ -205,7 +188,6 @@ function render() {
 		}
 		if (!hit) {
 			b.translateX(speed * d.x);
-			//bullets[i].translateY(speed * bullets[i].direction.y);
 			b.translateZ(speed * d.z);
 		}
 	}
@@ -218,7 +200,7 @@ function render() {
 			scene.remove(a);
 			kills++;
 			$('#score').html(kills * 100);
-			addAI();
+			//addAI();   //da se ne respawna
 		}
 		// Move AI
 		var r = Math.random();
@@ -240,22 +222,7 @@ function render() {
 			scene.remove(a);
 			addAI();
 		}
-		/*
-		var c = getMapSector(a.position);
-		if (a.pathPos == a.path.length-1) {
-			console.log('finding new path for '+c.x+','+c.z);
-			a.pathPos = 1;
-			a.path = getAIpath(a);
-		}
-		var dest = a.path[a.pathPos], proportion = (c.z-dest[1])/(c.x-dest[0]);
-		a.translateX(aispeed * proportion);
-		a.translateZ(aispeed * 1-proportion);
-		console.log(c.x, c.z, dest[0], dest[1]);
-		if (c.x == dest[0] && c.z == dest[1]) {
-			console.log(c.x+','+c.z+' reached destination');
-			a.PathPos++;
-		}
-		*/
+		
 		var cc = getMapSector(cam.position);
 		if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 2) {
 			createBullet(a);
@@ -266,29 +233,25 @@ function render() {
 	renderer.render(scene, cam); // Repaint
 	
 	// Death
-	if (health <= 0) {
+	if (!(health > 0)) {
 		runAnim = false;
 		$(renderer.domElement).fadeOut();
 		$('#radar, #hud, #credits, #gun').fadeOut();
 		$('#intro').fadeIn();
-		$('#intro').html('Ouch! Click to restart...');
+		$('#intro').html('GAME OVER! Click to restart...');
 		$('#intro').one('click', function() {
 			location = location;
-			/*
-			$(renderer.domElement).fadeIn();
-			$('#radar, #hud, #credits').fadeIn();
-			$(this).fadeOut();
-			runAnim = true;
-			animate();
-			health = 100;
-			$('#health').html(health);
-			kills--;
-			if (kills <= 0) kills = 0;
-			$('#score').html(kills * 100);
-			cam.translateX(-cam.position.x);
-			cam.translateZ(-cam.position.z);
-			*/
 		});
+	}
+	else if (!enemies) {
+	    runAnim = false;
+	    $(renderer.domElement).fadeOut();
+	    $('#radar, #hud, #credits, #gun').fadeOut();
+	    $('#intro').fadeIn();
+	    $('#intro').html('Congratulations! You have saved the president! Click to restart...');
+	    $('#intro').one('click', function () {
+	        location = location;
+	    });
 	}
 }
 
@@ -322,14 +285,6 @@ function setupScene() {
 		}
 	}
 	
-	// Health cube
-	healthcube = new t.Mesh(
-			new t.CubeGeometry(30, 30, 30),
-			new t.MeshBasicMaterial({map: t.ImageUtils.loadTexture('images/health.png')})
-	);
-	healthcube.position.set(-UNITSIZE-15, 35, -UNITSIZE-15);
-	scene.add(healthcube);
-	
 	// Lighting
 	var directionalLight1 = new t.DirectionalLight( 0xF7EFBE, 0.7 );
 	directionalLight1.position.set( 0.5, 1, 0.5 );
@@ -345,6 +300,24 @@ function setupAI() {
 	for (var i = 0; i < NUMAI; i++) {
 		addAI();
 	}
+    //dodano:
+	addPresident();
+    //
+}
+function addPresident() {
+    var c = getMapSector(cam.position);
+    var aiMaterial = new t.MeshBasicMaterial({/*color: 0xEE3333,*/map: t.ImageUtils.loadTexture('images/trump.png') });
+    var o = new t.Mesh(aiGeo, aiMaterial);
+    
+    x = Math.floor(1 - mapW / 2) * UNITSIZE;
+    z = Math.floor(1 - mapW / 2) * UNITSIZE;
+    o.position.set(x, UNITSIZE * 0.15, z);
+    o.health = 50;
+    o.pathPos = 1;
+    o.lastRandomX = Math.random();
+    o.lastRandomZ = Math.random();
+    ai.push(o);
+    scene.add(o);
 }
 
 function addAI() {
@@ -380,21 +353,6 @@ function getAIpath(a) {
 	return path;
 }
 
-/**
- * Find a path from one grid cell to another.
- *
- * @param sX
- *   Starting grid x-coordinate.
- * @param sZ
- *   Starting grid z-coordinate.
- * @param eX
- *   Ending grid x-coordinate.
- * @param eZ
- *   Ending grid z-coordinate.
- * @returns
- *   An array of coordinates including the start and end positions representing
- *   the path from the starting cell to the ending cell.
- */
 function findAIpath(sX, sZ, eX, eZ) {
 	var backupGrid = grid.clone();
 	var path = finder.findPath(sX, sZ, eX, eZ, grid);
@@ -500,15 +458,6 @@ function createBullet(obj) {
 	return sphere;
 }
 
-/*
-function loadImage(path) {
-	var image = document.createElement('img');
-	var texture = new t.Texture(image, t.UVMapping);
-	image.onload = function() { texture.needsUpdate = true; };
-	image.src = path;
-	return texture;
-}
-*/
 
 function onDocumentMouseMove(e) {
 	e.preventDefault();
