@@ -35,7 +35,15 @@ var map = [
 var camera, scene, renderer;
 var geometry, material, mesh;
 var controls;
-
+//dodano: 
+var SPEED = 1000;
+var NUMAI = 5;
+var UNITSIZE = 40;
+var ai = [];
+var aispeed = 5;
+var bullets = [];
+var health = 100;
+//
 var objects = [];
 
 var raycaster;
@@ -159,6 +167,7 @@ function init() {
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
 
+    setupAI();
     var onKeyDown = function (event) {
 
         switch (event.keyCode) {
@@ -575,11 +584,11 @@ function animate() {
 
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
-        if (moveForward) velocity.z -= 400.0 * delta;
-        if (moveBackward) velocity.z += 400.0 * delta;
+        if (moveForward) velocity.z -= SPEED * delta;
+        if (moveBackward) velocity.z += SPEED * delta;
 
-        if (moveLeft) velocity.x -= 400.0 * delta;
-        if (moveRight) velocity.x += 400.0 * delta;
+        if (moveLeft) velocity.x -= SPEED * delta;
+        if (moveRight) velocity.x += SPEED * delta;
 
         if (isOnObject === true) {
             velocity.y = Math.max(0, velocity.y);
@@ -599,11 +608,140 @@ function animate() {
             canJump = true;
 
         }
-
+        //dodano: premikanje metkov
+        updateBullets();
+        //dodano:premikanje sovraznikov
+        for (var i = 0; i < ai.length; i++) {
+            var a = ai[i];
+            moveAI(a, i);
+        }
+        //
         prevTime = time;
 
     }
 
     renderer.render(scene, camera);
 
+}
+
+//DODANO:
+function setupAI() {
+    for (var i = 0; i < NUMAI; i++) {
+        addAI();
+    }
+    //dodano:
+    // addPresident();
+    //
+}
+function addAI() {
+    var aiGeo = new THREE.CubeGeometry(40, 40, 40);
+    var c = getMapSector(camera.position);
+    var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/face.png') });
+    var o = new THREE.Mesh(aiGeo, aiMaterial);
+    do {
+        var x = getRandBetween(0, mapW - 1);
+        var z = getRandBetween(0, mapH - 1);
+    } while (map[x][z] > 0 || (x == c.x && z == c.z));
+    x = Math.floor(x - mapW / 2) * UNITSIZE;
+    z = Math.floor(z - mapW / 2) * UNITSIZE;
+    o.position.set(x, UNITSIZE * 0.5, z);
+    o.health = 100;
+    //o.path = getAIpath(o);
+    o.pathPos = 1;
+    o.lastRandomX = Math.random();
+    o.lastRandomZ = Math.random();
+    o.lastShot = Date.now(); // Higher-fidelity timers aren't a big deal here.
+    ai.push(o);
+    scene.add(o);
+}
+function getMapSector(v) {
+    var x = Math.floor((v.x + UNITSIZE / 2) / UNITSIZE + mapW / 2);
+    var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW / 2);
+    return { x: x, z: z };
+}
+function getRandBetween(lo, hi) {
+    return parseInt(Math.floor(Math.random() * (hi - lo + 1)) + lo, 10);
+}
+function moveAI(a, i) {
+    var r = Math.random();
+    if (r > 0.995) {
+        a.lastRandomX = Math.random() * 2 - 1;
+        a.lastRandomZ = Math.random() * 2 - 1;
+    }
+    a.translateX(aispeed * a.lastRandomX);
+    a.translateZ(aispeed * a.lastRandomZ);
+    var c = getMapSector(a.position);
+    if (c.x < 0 || c.x >= mapW || c.y < 0 || c.y >= mapH) { //dodaj collision!!
+        a.translateX(-2 * aispeed * a.lastRandomX);
+        a.translateZ(-2 * aispeed * a.lastRandomZ);
+        a.lastRandomX = Math.random() * 2 - 1;
+        a.lastRandomZ = Math.random() * 2 - 1;
+    }
+    if (c.x < -1 || c.x > mapW || c.z < -1 || c.z > mapH) {
+        ai.splice(i, 1);
+        scene.remove(a);
+        addAI();
+    }
+
+    var cc = getMapSector(camera.position);
+
+    if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 5) { //
+        createBullet(a);
+        a.lastShot = Date.now();
+    }
+}
+function createBullet(obj) {
+    if (obj === undefined) {
+        obj = camera;
+    }
+    var mat = new THREE.MeshBasicMaterial({ color: 0x333333 });
+    var geo = new THREE.SphereGeometry(2, 6, 6);
+    var sphere = new THREE.Mesh(geo, mat);
+    sphere.position.set(obj.position.x, obj.position.y * 0.8, obj.position.z);
+
+    if (obj instanceof THREE.Camera) {
+        var vector = new THREE.Vector3(mouse.x, mouse.y, 1);
+        projector.unprojectVector(vector, obj);
+        sphere.ray = new THREE.Ray(
+				obj.position,
+				vector.sub(obj.position).normalize()
+		);
+    }
+    else {
+        var vector = camera.position.clone();
+        sphere.ray = new THREE.Ray(
+				obj.position,
+				vector.sub(obj.position).normalize()
+		);
+    }
+    sphere.owner = obj;
+
+    bullets.push(sphere);
+    scene.add(sphere);
+
+    return sphere;
+}
+function updateBullets() {
+    for (var i = bullets.length - 1; i >= 0; i--) {
+        var b = bullets[i], p = b.position, d = b.ray.direction;
+        var speed = 5;
+        var hit = false;
+        /*
+        if (checkWallCollision(p)) {
+            bullets.splice(i, 1);
+            scene.remove(b);
+            continue;
+        }*/
+
+        //DODAJ: zadet AI, zadet player
+        // Bullet hits player
+
+        if (!hit) {
+            b.translateX(speed * d.x);
+            b.translateZ(speed * d.z);
+        }
+    }
+}
+function distance(x1, y1, x2, y2) {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
