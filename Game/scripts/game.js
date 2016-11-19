@@ -1,3 +1,33 @@
+var map = [ // 1  2  3  4  5  6  7  8  9
+           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
+           [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
+           [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 1, 1, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
+		   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 2, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 2, 2, 2,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
+           [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
+           [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
+           ], mapW = map.length, mapH = map[0].length;
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var camera, scene, renderer;
 var geometry, material, mesh;
 var controls;
@@ -189,6 +219,7 @@ function init() {
     document.addEventListener('keyup', onKeyUp, false);
 
     raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+	
 
     // floor
 
@@ -204,24 +235,16 @@ function init() {
 
     }
 
-    for (var i = 0, l = geometry.faces.length; i < l; i++) {
-
-        var face = geometry.faces[i];
-        face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-        face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-        face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-
-    }
-
-    material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors });
+    material = new THREE.MeshBasicMaterial(({color: 0xFBEBCD}));
 
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
     // objects
 
-    geometry = new THREE.BoxGeometry(20, 20, 20);
-
+    geometry = new THREE.BoxGeometry(40, 40, 40);
+	
+	
     for (var i = 0, l = geometry.faces.length; i < l; i++) {
 
         var face = geometry.faces[i];
@@ -230,23 +253,66 @@ function init() {
         face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
     }
+	
+	//
+	
+	for (var i = 0; i < mapW; i++) {
+		for (var j = 0, m = map[i].length; j < m; j++) {
+			material = new THREE.MeshPhongMaterial({ specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
+			var mesh = new THREE.Mesh(geometry, material);
+			if(map[i][j]==1) {
 
-    for (var i = 0; i < 500; i++) {
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 20;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh);
+				
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 60;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+				
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 100;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+				
+			}
+			if(map[i][j]==2) {
 
-        material = new THREE.MeshPhongMaterial({ specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 20;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh);
+			}
+			if(map[i][j]==3) {
 
-        var mesh = new THREE.Mesh(geometry, material);
-        mesh.position.x = Math.floor(Math.random() * 20 - 10) * 20;
-        mesh.position.y = Math.floor(Math.random() * 20) * 20 + 10;
-        mesh.position.z = Math.floor(Math.random() * 20 - 10) * 20;
-        scene.add(mesh);
-
-        material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
-
-        objects.push(mesh);
-
-    }
-
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 100;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh);
+			}
+		}
+	}
     //
 
     renderer = new THREE.WebGLRenderer();
