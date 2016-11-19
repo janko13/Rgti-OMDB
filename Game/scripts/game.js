@@ -1,13 +1,13 @@
-var map = [ // 1  2  3  4  5  6  7  8  9
+var map = [ 
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
-           [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
-           [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
-		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 1, 1, 3, 3,1,],
-		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-		   [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1,1,],
+           [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
+           [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 4, 5, 5, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3,1,],
+		   [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3,1,],
+		   [1, 5, 5, 5, 5, 5, 5, 5, 5, 4, 3, 3, 3, 3, 4, 3, 3, 3, 3,1,],
+		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 4, 5, 5, 5, 5, 4, 3, 3, 5, 5,1,],
 		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
 		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
 		   [1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 2, 0, 0, 0, 0, 0,1,],
@@ -22,18 +22,20 @@ var map = [ // 1  2  3  4  5  6  7  8  9
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
            ], mapW = map.length, mapH = map[0].length;
 
+/*
+	1 zunanji zid
+	2 pregrade zunaj hise
+	3 streha
+	4 notranja navpicna stena
+	5 notranja vzdovzna stena
+	stopnice so hardcovdane na poljih 9,2 9,3 10,2
 
-
-
-
-
+*/
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 var camera, scene, renderer;
 var geometry, material, mesh;
 var controls;
-//dodano: 
-var SPEED = 1000;
-    //
+
 var objects = [];
 
 var raycaster;
@@ -41,6 +43,7 @@ var raycaster;
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 
+// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
@@ -95,7 +98,7 @@ if (havePointerLock) {
 
         if (/Firefox/i.test(navigator.userAgent)) {
 
-           var fullscreenchange = function (event) {
+            var fullscreenchange = function (event) {
 
                 if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
 
@@ -236,40 +239,47 @@ function init() {
 
     }
 
-    material = new THREE.MeshLambertMaterial({/*color: 0x00CCAA*/ map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+    material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/tla.jpg') });
 
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
     // objects
 
-    geometry = new THREE.BoxGeometry(40, 40, 40);
-    material = new THREE.MeshBasicMaterial({ color: 0x00CCAA });
+    
 	
-   /* for (var i = 0, l = geometry.faces.length; i < l; i++) {
+	
+    for (var i = 0, l = geometry.faces.length; i < l; i++) {
 
         var face = geometry.faces[i];
         face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
         face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
         face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
-    }*/
+    }
 	
 	//
 	
 	for (var i = 0; i < mapW; i++) {
 		for (var j = 0, m = map[i].length; j < m; j++) {
-		    
-		    var mesh = new THREE.Mesh(geometry, material);
+			
 			if(map[i][j]==1) {
-                material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				geometry = new THREE.BoxGeometry(40, 40, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);
+				
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
 				mesh.position.y = 20;
 				
 				scene.add(mesh);
-			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh);
+				
+				geometry = new THREE.BoxGeometry(40, 40, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+				
 				
 				mesh = new THREE.Mesh(geometry, material);
 				
@@ -278,22 +288,30 @@ function init() {
 				mesh.position.y = 60;
 				
 				scene.add(mesh);
-			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh)
-				
+
+				geometry = new THREE.BoxGeometry(40, 20, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+			
 				mesh = new THREE.Mesh(geometry, material);
 				
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
-				mesh.position.y = 100;
+				mesh.position.y = 90;
 				
 				scene.add(mesh);
-			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh)
 				
 			}
 			if(map[i][j]==2) {
-			    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/crate.jpg') });
+				
+				geometry = new THREE.BoxGeometry(20, 40, 20);
+				material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/crate.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
 				mesh.position.y = 20;
@@ -303,17 +321,217 @@ function init() {
 				objects.push(mesh);
 			}
 			if(map[i][j]==3) {
-			    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/crate.jpg') });
+				
+				geometry = new THREE.BoxGeometry(40, 20, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+				
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
-				mesh.position.y = 100;
+				mesh.position.y = 90;
 				
 				scene.add(mesh);
 				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh);
 			}
+			if(map[i][j]==4) {
+				geometry = new THREE.BoxGeometry(40, 40, 20);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 20;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh);
+				
+				geometry = new THREE.BoxGeometry(40, 40, 20);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+				
+				
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 60;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+
+				geometry = new THREE.BoxGeometry(40, 20, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+			
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 90;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+				
+				if(map[i][j+1]==5 ) {
+					geometry = new THREE.BoxGeometry(20, 40, 20);
+					material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+					var mesh = new THREE.Mesh(geometry, material);
+					
+					mesh.position.x = i * 40 + 20;
+					mesh.position.z = j * 40 + 30;
+					mesh.position.y = 20;
+					
+					scene.add(mesh);
+					material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+					objects.push(mesh);
+					
+					geometry = new THREE.BoxGeometry(20, 40, 20);
+					material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+					var mesh = new THREE.Mesh(geometry, material);				
+					
+					
+					mesh = new THREE.Mesh(geometry, material);
+					
+					mesh.position.x = i * 40 + 20;
+					mesh.position.z = j * 40 + 30;
+					mesh.position.y = 60;
+					
+					scene.add(mesh);
+					material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+					objects.push(mesh)	
+				}
+				
+				if(map[i][j-1]==5 ) {
+					geometry = new THREE.BoxGeometry(20, 40, 20);
+					material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+					var mesh = new THREE.Mesh(geometry, material);
+					
+					mesh.position.x = i * 40 + 20;
+					mesh.position.z = j * 40 + 10;
+					mesh.position.y = 20;
+					
+					scene.add(mesh);
+					material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+					objects.push(mesh);
+					
+					geometry = new THREE.BoxGeometry(20, 40, 20);
+					material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+					var mesh = new THREE.Mesh(geometry, material);				
+					
+					
+					mesh = new THREE.Mesh(geometry, material);
+					
+					mesh.position.x = i * 40 + 20;
+					mesh.position.z = j * 40 + 10;
+					mesh.position.y = 60;
+					
+					scene.add(mesh);
+					material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+					objects.push(mesh)	
+				}
+				
+				
+				
+			}
+			if(map[i][j]==5) {
+				geometry = new THREE.BoxGeometry(20, 40, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 20;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh);
+				
+				geometry = new THREE.BoxGeometry(20, 40, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+				
+				
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 60;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+
+				geometry = new THREE.BoxGeometry(40, 20, 40);
+				material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+				var mesh = new THREE.Mesh(geometry, material);				
+			
+				mesh = new THREE.Mesh(geometry, material);
+				
+				mesh.position.x = i * 40 + 20;
+				mesh.position.z = j * 40 + 20;
+				mesh.position.y = 90;
+				
+				scene.add(mesh);
+				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+				objects.push(mesh)
+				
+			}
+			
+			
+			
+			
 		}
 	}
+	
+	// stopnice   
+	//stopnice so hardcovdane na poljih 8,1 8,2 9,1
+	for(var i = 0; i < 10 ; i++){	
+		geometry = new THREE.BoxGeometry(6, 6, 40);
+		material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+		var mesh = new THREE.Mesh(geometry, material);
+		
+		mesh.position.x = 9 * 40 + 20  -  i * 6 - 3 ;
+		mesh.position.z = 1 * 40 + 20;
+		mesh.position.y = 40 + i * 6 + 3;
+		
+		scene.add(mesh);
+		material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+		objects.push(mesh);
+	}
+	for(var i = 0; i < 10 ; i++){	
+		geometry = new THREE.BoxGeometry(40, 4, 4);
+		material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+		var mesh = new THREE.Mesh(geometry, material);
+		
+		mesh.position.x = 400 ;
+		mesh.position.z = 3 * 40 - i * 4 - 2;
+		mesh.position.y = i * 4 + 2;
+		
+		scene.add(mesh);
+		material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+		objects.push(mesh);
+	}
+	
+	
+	
+	
+		geometry = new THREE.BoxGeometry(40, 10, 40);
+		material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
+		var mesh = new THREE.Mesh(geometry, material);
+		
+		mesh.position.x = 400 ;
+		mesh.position.z = 1 * 40 + 20;
+		mesh.position.y = 35;
+		
+		scene.add(mesh);
+		material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+		objects.push(mesh);
+	
+	
     //
 
     renderer = new THREE.WebGLRenderer();
@@ -357,11 +575,11 @@ function animate() {
 
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
-        if (moveForward) velocity.z -= SPEED * delta;
-        if (moveBackward) velocity.z += SPEED * delta;
+        if (moveForward) velocity.z -= 400.0 * delta;
+        if (moveBackward) velocity.z += 400.0 * delta;
 
-        if (moveLeft) velocity.x -= SPEED * delta;
-        if (moveRight) velocity.x += SPEED * delta;
+        if (moveLeft) velocity.x -= 400.0 * delta;
+        if (moveRight) velocity.x += 400.0 * delta;
 
         if (isOnObject === true) {
             velocity.y = Math.max(0, velocity.y);
