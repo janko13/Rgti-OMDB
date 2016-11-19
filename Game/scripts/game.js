@@ -31,7 +31,9 @@ var map = [ // 1  2  3  4  5  6  7  8  9
 var camera, scene, renderer;
 var geometry, material, mesh;
 var controls;
-
+//dodano: 
+var SPEED = 1000;
+    //
 var objects = [];
 
 var raycaster;
@@ -39,7 +41,6 @@ var raycaster;
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 
-// http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
 var havePointerLock = 'pointerLockElement' in document || 'mozPointerLockElement' in document || 'webkitPointerLockElement' in document;
 
@@ -94,7 +95,7 @@ if (havePointerLock) {
 
         if (/Firefox/i.test(navigator.userAgent)) {
 
-            var fullscreenchange = function (event) {
+           var fullscreenchange = function (event) {
 
                 if (document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element) {
 
@@ -235,7 +236,7 @@ function init() {
 
     }
 
-    material = new THREE.MeshBasicMaterial(({color: 0xFBEBCD}));
+    material = new THREE.MeshLambertMaterial({/*color: 0x00CCAA*/ map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
 
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
@@ -243,31 +244,31 @@ function init() {
     // objects
 
     geometry = new THREE.BoxGeometry(40, 40, 40);
+    material = new THREE.MeshBasicMaterial({ color: 0x00CCAA });
 	
-	
-    for (var i = 0, l = geometry.faces.length; i < l; i++) {
+   /* for (var i = 0, l = geometry.faces.length; i < l; i++) {
 
         var face = geometry.faces[i];
         face.vertexColors[0] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
         face.vertexColors[1] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
         face.vertexColors[2] = new THREE.Color().setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 
-    }
+    }*/
 	
 	//
 	
 	for (var i = 0; i < mapW; i++) {
 		for (var j = 0, m = map[i].length; j < m; j++) {
-			material = new THREE.MeshPhongMaterial({ specular: 0xffffff, shading: THREE.FlatShading, vertexColors: THREE.VertexColors });
-			var mesh = new THREE.Mesh(geometry, material);
+		    
+		    var mesh = new THREE.Mesh(geometry, material);
 			if(map[i][j]==1) {
-
+                material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/wall-1.jpg') });
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
 				mesh.position.y = 20;
 				
 				scene.add(mesh);
-				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh);
 				
 				mesh = new THREE.Mesh(geometry, material);
@@ -277,7 +278,7 @@ function init() {
 				mesh.position.y = 60;
 				
 				scene.add(mesh);
-				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh)
 				
 				mesh = new THREE.Mesh(geometry, material);
@@ -287,12 +288,12 @@ function init() {
 				mesh.position.y = 100;
 				
 				scene.add(mesh);
-				material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+			//	material.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
 				objects.push(mesh)
 				
 			}
 			if(map[i][j]==2) {
-
+			    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/crate.jpg') });
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
 				mesh.position.y = 20;
@@ -302,7 +303,7 @@ function init() {
 				objects.push(mesh);
 			}
 			if(map[i][j]==3) {
-
+			    material = new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture('images/crate.jpg') });
 				mesh.position.x = i * 40 + 20;
 				mesh.position.z = j * 40 + 20;
 				mesh.position.y = 100;
@@ -356,11 +357,11 @@ function animate() {
 
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
-        if (moveForward) velocity.z -= 400.0 * delta;
-        if (moveBackward) velocity.z += 400.0 * delta;
+        if (moveForward) velocity.z -= SPEED * delta;
+        if (moveBackward) velocity.z += SPEED * delta;
 
-        if (moveLeft) velocity.x -= 400.0 * delta;
-        if (moveRight) velocity.x += 400.0 * delta;
+        if (moveLeft) velocity.x -= SPEED * delta;
+        if (moveRight) velocity.x += SPEED * delta;
 
         if (isOnObject === true) {
             velocity.y = Math.max(0, velocity.y);
