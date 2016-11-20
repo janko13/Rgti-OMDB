@@ -1,4 +1,4 @@
-var map = [ 
+/*var map = [ 
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
            [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
            [1, 3, 3, 3, 3, 3, 3, 3, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
@@ -20,7 +20,7 @@ var map = [
 		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
 		   [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
-           ], mapW = map.length, mapH = map[0].length;
+           ], mapW = map.length, mapH = map[0].length;*/
 
 /*
 	1 zunanji zid
@@ -45,6 +45,8 @@ var bullets = [];
 var health = 100;
 var mouse = { x: 0, y: 0 }
 var rayc = new THREE.Raycaster();
+var mapW = 20;
+var mapH = 20;
 //
 var objects = [];
 
@@ -378,6 +380,7 @@ function moveAI(a, i) {
     a.translateX(aispeed * a.lastRandomX);
     a.translateZ(aispeed * a.lastRandomZ);
     var c = getMapSector(a.position);
+    
     if (c.x < 0 || c.x >= mapW || c.y < 0 || c.y >= mapH) { //dodaj collision!!
         a.translateX(-2 * aispeed * a.lastRandomX);
         a.translateZ(-2 * aispeed * a.lastRandomZ);
