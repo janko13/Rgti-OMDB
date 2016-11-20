@@ -205,7 +205,10 @@ function init() {
                 break;
 
             case 32: // space
-                if (canJump === true) velocity.y += 350;
+                if (canJump === true){
+					velocity.y += 200;
+					velocity.z -= 200;
+				} 			
                 canJump = false;
                 break;
 
@@ -515,7 +518,7 @@ function createWorld(){
 
     }
 
-    material = new THREE.MeshLambertMaterial({/*map: THREE.ImageUtils.loadTexture('images/tla.jpg')*/ color: 0x0000 });
+    material = new THREE.MeshLambertMaterial({map: THREE.ImageUtils.loadTexture('images/tla.jpg')});
     mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 	
@@ -540,15 +543,15 @@ function createWorld(){
 	
 	//stopnice
 	for(var i = 0; i < 5 ; i++){
-		var x = 9 * 40 + 20 - i * 6 - 3;
+		var x = 410 - i * 10 - 5;
 		var y = i * 10 + 5;
-		var z = 3 * 40 - i * 4 - 2 ;
+		var z = 120 - i * 10 - 5 ;
 		
-		createWall(x ,50 + y,60,12,10,40);
-		createWall(400, y , z  ,40,10,12);
+		createWall(x ,50 + y,60,15,10,40);
+		createWall(430, y , z  ,40,10,15);
 	}
 	
-	createWall(400,45,60,40,10,40);
+	createWall(430,45,60,40,10,40);
 }
 
 function createWall(cx,cy,cz,dx,dy,dz){
