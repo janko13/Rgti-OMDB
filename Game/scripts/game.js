@@ -639,21 +639,19 @@ function animate() {
 //DODANO:
 function setupAI() {
     for (var i = 0; i < NUMAI; i++) {
-        addAI();
+        addAI(i);
     }
     //dodano:
     // addPresident();
     //
 }
-function addAI() {
+function addAI(i) {
     var aiGeo = new THREE.CubeGeometry(40, 40, 40);
     var c = getMapSector(camera.position);
     var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/face.png') });
     var o = new THREE.Mesh(aiGeo, aiMaterial);
-    do {
-        var x = getRandBetween(0, mapW - 1);
-        var z = getRandBetween(0, mapH - 1);
-    } while (map[x][z] > 0 || (x == c.x && z == c.z));
+    var x = i;
+    var z = 0;
     x = Math.floor(x - mapW / 2) * UNITSIZE;
     z = Math.floor(z - mapW / 2) * UNITSIZE;
     o.position.set(x, UNITSIZE * 0.5, z);
@@ -702,6 +700,16 @@ function moveAI(a, i) {
         a.lastShot = Date.now();
     }
 }
+
+function AIdeath(a, i) {
+    if (a.health <= 0) {
+        ai.splice(i, 1);
+        scene.remove(a);
+        //kills++;
+        //$('#score').html(kills * 100);
+    }
+}
+
 function createBullet(obj) {
     
     var mat = new THREE.MeshBasicMaterial({ color: 0x333333 });
@@ -717,8 +725,7 @@ function createBullet(obj) {
     }
         
     else {
-        console.log(obj.getName());
-        var vector = camera.position.clone();
+        var vector = controls.getObject().position.clone();
         sphere.ray = new THREE.Ray(
 				obj.position,
 				vector.sub(obj.position).normalize()
@@ -746,26 +753,48 @@ function updateBullets() {
         }*/
 
         //DODAJ: zadet AI, zadet player
-        // Bullet hits player
-        /*
-        if (distance(p.x, p.z, camera.position.x, camera.position.z) < 25 && b.owner != camera) {
-            $('#hurt').fadeIn(75);
+        // zadet player
+        
+        if (distance(p.x, p.z, controls.getObject().position.x, controls.getObject().position.z) < 25 && b.owner != controls.getObject()) {
+            console.log("hit, health: " + health);
+            //$('#hurt').fadeIn(75);
             health -= 10;
             if (health < 0) health = 0;
-            val = health < 25 ? '<span style="color: darkRed">' + health + '</span>' : health;
-            $('#health').html(val);
+           // val = health < 25 ? '<span style="color: darkRed">' + health + '</span>' : health;
+         //   $('#health').html(val);
             bullets.splice(i, 1);
             scene.remove(b);
-            $('#hurt').fadeOut(350);
-        }*/
+            //$('#hurt').fadeOut(350);
+            hit = true;
+        }
+        //zadet AI
+        for (var j = ai.length - 1; j >= 0; j--) {
+            var a = ai[j];
+            var v = a.geometry.vertices[0];
+            var c = a.position;
+            var x = Math.abs(v.x), z = Math.abs(v.z);
+            //console.log(Math.round(p.x), Math.round(p.z), c.x, c.z, x, z);
+            if (p.x < c.x + x && p.x > c.x - x && p.z < c.z + z && p.z > c.z - z && b.owner != a) {
+                bullets.splice(i, 1);
+                scene.remove(b);
+                a.health -= 100;
+                var color = a.material.color, percent = a.health / 100;
+                //a.material.color.setRGB(percent * color.r,percent * color.g, percent * color.b);
+                hit = true;
+                AIdeath(a, j);
+                break;
+            }
+        }
+
         if (!hit) {
             b.translateX(speed * d.x);
             b.translateZ(speed * d.z);
         }
+        console.log(ai.length);
     }
 }
-function distance(x1, y1, x2, y2) {
-    return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+function distance(x1, z1, x2, z2) {
+    return Math.sqrt((x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
 }
 function onDocumentMouseMove(e) {
     var WIDTH = window.innerWidth;
@@ -774,8 +803,3 @@ function onDocumentMouseMove(e) {
     mouse.x = (e.clientX / WIDTH) * 2 - 1;
     mouse.y = -(e.clientY / HEIGHT) * 2 + 1;
 }
-Object.prototype.getName = function () {
-    var funcNameRegex = /function (.{1,})\(/;
-    var results = (funcNameRegex).exec((this).constructor.toString());
-    return (results && results.length > 1) ? results[1] : "";
-};
