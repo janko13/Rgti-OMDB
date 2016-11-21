@@ -52,6 +52,19 @@ var objects = [];
 
 var raycaster;
 
+var ray;
+var rays = [
+    new THREE.Vector3(0, 0, 1),
+    new THREE.Vector3(1, 0, 1),
+    new THREE.Vector3(1, 0, 0),
+    new THREE.Vector3(1, 0, -1),
+    new THREE.Vector3(0, 0, -1),
+    new THREE.Vector3(-1, 0, -1),
+    new THREE.Vector3(-1, 0, 0),
+    new THREE.Vector3(-1, 0, 1)
+];
+
+
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 
@@ -208,8 +221,8 @@ function init() {
 
             case 32: // space
                 if (canJump === true){
-					velocity.y += 200;
-					velocity.z -= 200;
+					velocity.y += 400;
+					velocity.z -= 400;
 				} 			
                 canJump = false;
                 break;
@@ -250,7 +263,7 @@ function init() {
     document.addEventListener('keyup', onKeyUp, false);
 
     raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
-	
+	ray = new THREE.Raycaster();
 
 	createWorld();
 
@@ -295,6 +308,38 @@ function animate() {
 
         velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
 
+
+
+
+
+        var cameraDir = camera.getWorldDirection();
+        console.log(cameraDir.x + " " + cameraDir.y + " " + cameraDir.z);
+        var collisions, distance = 15;
+
+        for (var i = 0; i < rays.length; i++) {
+
+            ray.set(controls.getObject().position, rays[i]);
+
+            collisions = ray.intersectObjects(objects);
+
+            if (collisions.length > 0 && collisions[0].distance <= distance) {
+                //console.log("collision: " + i + " " + rays[i].x + " " + rays[i].y + " " + rays[i].z + " " + collisions[0].distance );
+                var dir = cameraDirection();
+                console.log("dir " + dir);
+                collision(i, dir);
+
+
+
+            }
+
+        }
+        console.log("\n");
+
+
+
+
+
+
         if (moveForward) velocity.z -= SPEED * delta;
         if (moveBackward) velocity.z += SPEED * delta;
 
@@ -306,6 +351,13 @@ function animate() {
 
             canJump = true;
         }
+
+
+
+
+
+
+
 
         controls.getObject().translateX(velocity.x * delta);
         controls.getObject().translateY(velocity.y * delta);
@@ -334,6 +386,54 @@ function animate() {
     renderer.render(scene, camera);
 
 }
+
+function collision( i, dir ) {
+
+    if (i === (0-dir)%8) { //nazaj
+        moveBackward = false;
+    }
+    if (i === (1 + dir)%8) {
+        moveRight = false;
+        moveBackward = false;
+    }
+    if (i === (2 + dir)%8) {
+        moveRight = false;
+    }
+    if (i === (3 + dir)%8) {
+        moveRight = false;
+        moveForward = false;
+    }
+    if (i === (4 + dir)%8) {
+        moveForward = false;
+        // jump = false;
+    }
+    if (i === (5 + dir)%8) {
+        moveLeft = false;
+        moveForward = false;
+    }
+    if (i === (6 + dir)%8) {
+        moveLeft = false;
+    }
+    if (i === (7 + dir)%8) {
+        moveLeft = false;
+        moveBackward = false;
+    }
+}
+
+function cameraDirection() {
+    var camerdaDirection = camera.getWorldDirection();
+
+    if (camerdaDirection.z >= 0.9) return 4;
+    if (camerdaDirection.z <= -0.9) return 0;
+    if (camerdaDirection.x <= -0.8) return 6;
+    if (camerdaDirection.x >= 0.8) return 2;
+
+    if (camerdaDirection.x > 0 && camerdaDirection.z < 0) return 1;
+    if (camerdaDirection.x > 0 && camerdaDirection.z > 0) return 3;
+    if (camerdaDirection.x < 0 && camerdaDirection.z > 0) return 5;
+    return 7;
+}
+
 
 //DODANO:
 function setupAI() {
@@ -532,7 +632,7 @@ function createWorld(){
 	createWall(20,40,400,40,80,800);
 	createWall(780,40,400,40,80,800);
 	createWall(400,40,780,800,80,40);
-	createWall(400,40,20,800,80,40);
+	createWall(400,40,20,600,80,40);
 	
 	//notranje stene
 	createWall(100,40,380,120,80,20);
