@@ -43,7 +43,7 @@ var ai = [];
 var aispeed = 5;
 var bullets = [];
 var health = 100;
-var mouse = { x: 0, y: 0 }
+//var mouse = { x: 0, y: 0 }
 var rayc = new THREE.Raycaster();
 var mapW = 20;
 var mapH = 20;
@@ -174,7 +174,7 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
     //dodano: mouse za streljanje
-    document.addEventListener('mousemove', onDocumentMouseMove, false);
+   // document.addEventListener('mousemove', onDocumentMouseMove, false);
     $(document).click(function (e) {
         e.preventDefault;
         if (e.which === 1) { // Left click only
@@ -313,7 +313,7 @@ function animate() {
 
 
         var cameraDir = camera.getWorldDirection();
-        console.log(cameraDir.x + " " + cameraDir.y + " " + cameraDir.z);
+        //console.log(cameraDir.x + " " + cameraDir.y + " " + cameraDir.z);
         var collisions, distance = 15;
 
         for (var i = 0; i < rays.length; i++) {
@@ -325,8 +325,8 @@ function animate() {
             if (collisions.length > 0 && collisions[0].distance <= distance) {
                 //console.log("collision: " + i + " " + rays[i].x + " " + rays[i].y + " " + rays[i].z + " " + collisions[0].distance );
                 var dir = cameraDirection();
-                console.log("dir " + dir);
-                collision(i, dir);
+                //console.log("dir " + dir);
+                //collision(i, dir);
 
 
 
@@ -519,8 +519,10 @@ function createBullet(obj) {
 
     if (obj == undefined) {
         obj = controls.getObject();
-
-        raycaster.setFromCamera(mouse, camera);
+        var vector = new THREE.Vector3(0,0,0);
+        
+        raycaster.setFromCamera(vector, camera);
+        
         sphere.ray = raycaster.ray;
     }
         
@@ -534,7 +536,7 @@ function createBullet(obj) {
     sphere.owner = obj;
     sphere.position.set(obj.position.x, obj.position.y, obj.position.z);
     bullets.push(sphere);
-    console.log(bullets.length);
+    //console.log(bullets.length);
     scene.add(sphere);
 
     return sphere;
@@ -590,19 +592,13 @@ function updateBullets() {
             b.translateX(speed * d.x);
             b.translateZ(speed * d.z);
         }
-        console.log(ai.length);
+        //console.log(ai.length);
     }
 }
 function distance(x1, z1, x2, z2) {
     return Math.sqrt((x2 - x1) * (x2 - x1) + (z2 - z1) * (z2 - z1));
 }
-function onDocumentMouseMove(e) {
-    var WIDTH = window.innerWidth;
-    var HEIGHT = window.innerHeight;
-    e.preventDefault();
-    mouse.x = (e.clientX / WIDTH) * 2 - 1;
-    mouse.y = -(e.clientY / HEIGHT) * 2 + 1;
-}
+
 
 /* World */
 
