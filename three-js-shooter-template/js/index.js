@@ -5,7 +5,7 @@
  var PointerLockControls = function ( camera, cannonBody ) {
 
     var eyeYPos = 2; // eyes are 2 meters above the ground
-    var velocityFactor = 0.2;
+    var velocityFactor = 1.2;
     var jumpVelocity = 20;
     var scope = this;
 
@@ -179,39 +179,11 @@
 //########################
 // code start
 
-var density = 2515;
-
-var map = [ // 1  2  3  4  5  6  7  8  9
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 3, 3, 3, 3, 3,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 1, 1, 3, 3,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-	[1, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 3, 3, 1, 3, 3, 3, 3,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 3, 3, 1, 1,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 2, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 2, 2, 2, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 2, 2, 2, 2, 2,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0,1,],
-	[1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 0, 0, 0,1,],
-	[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
-	[1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,1,],
-	[1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1,],
-], mapW = map.length, mapH = map[0].length;
-
-
-
 var sphereShape, sphereBody;
 var world;
 var physicsMaterial, groundMaterial;
 var groundShape, groundBody;
-var walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[];
+var walls=[], balls=[], ballMeshes=[], boxes=[], boxMeshes=[], objects = [], objm = [];;
 
 var camera, scene, renderer;
 var geometry, material, mesh;
@@ -329,14 +301,17 @@ function initCannon(){
 	world.broadphase = new CANNON.NaiveBroadphase();
 
 	// Create a slippery material (friction coefficient = 0.0)
-	physicsMaterial = new CANNON.Material("slipperyMaterial");
-	var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
-															physicsMaterial,
-															0.0, // friction coefficient
-															0.3  // restitution
-															);
-	// We must add the contact materials to the world
-	world.addContactMaterial(physicsContactMaterial);
+	// physicsMaterial = new CANNON.Material("slipperyMaterial");
+	// var physicsContactMaterial = new CANNON.ContactMaterial(physicsMaterial,
+	// 														physicsMaterial,
+	// 														0.0, // friction coefficient
+	// 														0.3  // restitution
+	// 														);
+	// // We must add the contact materials to the world
+	// world.addContactMaterial(physicsContactMaterial);
+
+
+
 
 	groundMaterial = new CANNON.Material("groundMaterial");
 	var ground_material = new CANNON.ContactMaterial(groundMaterial, groundMaterial,
@@ -362,9 +337,14 @@ function initCannon(){
 		angularFactor: new CANNON.Vec3(0,0,0)
 	});
 	sphereBody.addShape(sphereShape);
-	sphereBody.position.set(0,5,0);
+	sphereBody.position.set(0, 1.3, 0);
 	sphereBody.linearDamping = 0.9;
 	world.add(sphereBody);
+
+
+
+    groundMaterial = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x050505 } );
+    groundMaterial.color.setHSL( 0.095, 1, 0.75 );
 
 	// Create a plane
 	groundShape = new CANNON.Plane();
@@ -384,46 +364,48 @@ function init() {
 	/*var ambient = new THREE.AmbientLight( 0x111111 );
 	scene.add( ambient );*/
 
-    // light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
-    // light.position.set(0.5, 1, 0.75);
-    // scene.add(light);
+    light = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    light.color.setHSL( 0.6, 1, 0.6 );
+    light.groundColor.setHSL( 0.095, 1, 0.75 );
+    light.position.set( 0, 500, 0 );
+    scene.add(light);
 	
-	light = new THREE.SpotLight( 0xffffff );
-	light.position.set( 10, 30, 20 );
-	light.target.position.set( 0, 0, 0 );
-	if(true){
-		light.castShadow = true;
-
-		light.shadow.camera.near = 20;
-		light.shadow.camera.far = 50;//camera.far;
-		light.shadow.camera.fov = 40;
-
-		light.shadowMapBias = 0.1;
-		light.shadowMapDarkness = 0.7;
-		light.shadow.mapSize.width = 2*512;
-		light.shadow.mapSize.height = 2*512;
-
-		//light.shadowCameraVisible = true;
-	}
+	// light = new THREE.SpotLight( 0xffffff );
+	// light.position.set( 0, 100, 0 );
+	// light.target.position.set( 0, 0, 0 );
+	// if(true){
+	// 	light.castShadow = true;
+    //
+	// 	light.shadow.camera.near = 20;
+	// 	light.shadow.camera.far = 50;//camera.far;
+	// 	light.shadow.camera.fov = 40;
+    //
+	// 	light.shadowMapBias = 0.1;
+	// 	light.shadowMapDarkness = 0.7;
+	// 	light.shadow.mapSize.width = 2*512;
+	// 	light.shadow.mapSize.height = 2*512;
+    //
+	// 	//light.shadowCameraVisible = true;
+	// }
 	scene.add( light );
 
 	controls = new PointerLockControls( camera , sphereBody );
 	scene.add( controls.getObject() );
 
 	// floor
-	geometry = new THREE.PlaneGeometry( 300, 300, 50, 50 );
+	geometry = new THREE.PlaneGeometry( 2000, 2000, 50, 50 );
 	geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
 	material = new THREE.MeshLambertMaterial( { color: 0xeeee00 } );
 
 	mesh = new THREE.Mesh( geometry, material );
-	mesh.castShadow = true;
-	mesh.receiveShadow = true;
+	// mesh.castShadow = true;
+	// mesh.receiveShadow = true;
 	scene.add( mesh );
 
 	renderer = new THREE.WebGLRenderer({antialias: true});
-	renderer.shadowMap.enabled = true;
-	renderer.shadowMapSoft = true;
+	// renderer.shadowMap.enabled = true;
+	// renderer.shadowMapSoft = true;
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.setClearColor( scene.fog.color, 1 );
 
@@ -454,53 +436,8 @@ function init() {
 	// 	boxMeshes.push(boxMesh);
 	// }
 
+    loadWorld();
 
-	var halfExtents = new CANNON.Vec3(25,3,2);
-	var boxShape = new CANNON.Box(halfExtents);
-	var boxGeometry = new THREE.BoxGeometry(50, 6, 2);
-
-	// var x = (Math.random()-0.5)*20;
-	// var y = 1 + (Math.random()-0.5)*1;
-	// var z = (Math.random()-0.5)*20;
-
-	var x = -10;
-	var y = groundBody.position.y;
-	var z = -10;
-
-	var boxBody = new CANNON.Body({ mass: 50000 });
-	boxBody.addShape(boxShape);
-	var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-	var material2 = new THREE.MeshLambertMaterial( { color: randomColor } );
-	var boxMesh = new THREE.Mesh( boxGeometry, material2 );
-	world.add(boxBody);
-	scene.add(boxMesh);
-	boxBody.position.set(x,y,z);
-	boxMesh.position.set(x,y,z);
-	boxMesh.castShadow = true;
-	boxMesh.receiveShadow = true;
-	boxes.push(boxBody);
-	boxMeshes.push(boxMesh);
-
-
-
-
-	var he = new CANNON.Vec3(1, 1, 1);
-	var bs = new CANNON.Box(he);
-	var bg = new THREE.BoxGeometry(2, 2, 2);
-
-	x = -16;
-	y = groundBody.position.y;
-	z = 0;
-
-	var bb = new CANNON.Body({mass: 50000});
-	bb.addShape(bs);
-	var bm = new THREE.Mesh(bg, material2);
-	world.add(bb);
-	scene.add(bm);
-	bb.position.set(x, y, z);
-	bm.position.set(x, y, z);
-	boxes.push(bb);
-	boxMeshes.push(bm);
 
 
 	// Add linked boxes
@@ -551,7 +488,7 @@ var dt = 1/60;
 function animate() {
 	requestAnimationFrame( animate );
 
-	var pos = controls.getObject().position;
+	var pos = camera.getWorldDirection();
 	console.log(pos.x + " " + pos.y + " " + pos.z);
 
 
@@ -565,10 +502,10 @@ function animate() {
 		}
 
 		// Update box positions
-		for(var i=0; i<boxes.length; i++){
-			boxMeshes[i].position.copy(boxes[i].position);
-			boxMeshes[i].quaternion.copy(boxes[i].quaternion);
-		}
+		// for(var i=0; i<boxes.length; i++){
+		// 	boxMeshes[i].position.copy(boxes[i].position);
+		// 	boxMeshes[i].quaternion.copy(boxes[i].quaternion);
+		// }
 	}
 
 	controls.update( Date.now() - time );
@@ -598,7 +535,7 @@ window.addEventListener("click",function(e){
 		var ballBody = new CANNON.Body({ mass: 1 });
 		ballBody.addShape(ballShape);
 		var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-		material2 = new THREE.MeshPhongMaterial( { color: randomColor } );
+		material2 = new THREE.MeshPhongMaterial( { color: "yellow" } );
 		var ballMesh = new THREE.Mesh( ballGeometry, material2 );
 		world.add(ballBody);
 		scene.add(ballMesh);
@@ -620,3 +557,160 @@ window.addEventListener("click",function(e){
 	}
 });
 
+function loadWorld() {
+
+    createWall(-10, 3, -10, 25, 3, 1);
+    createWall(-10, 3, 10, 25, 3, 1);
+    createWall(-10, 7, 0, 25, 1, 10);
+
+    whiteHouse();
+    heaven();
+    tower();
+
+
+
+
+}
+
+function whiteHouse() {
+
+    createWall(200, 3, 0, 1, 3, 15);
+    createWall(225, 3, 16, 26, 3, 1);
+    createWall(250, 3, -10, 1, 3, 25);
+    createWall(230, 3, -25, 1, 3, 11);
+
+    createWall(223, 2, -15, 8, 2, 1);
+    createWall(205, 2, -15, 6, 2, 1);
+    createWall(215, 5, -15, 16, 1, 1);
+
+    createWall(241, 3, -35, 10, 3, 1);
+
+    createBox(215, 1, -30, 1, 1, 1);
+
+    // steber
+    createBox(200, 3, -35, 1, 3, 1);
+
+    createRoof(225, 7, -10, 28, 1, 28);
+
+}
+
+function tower() {
+
+    createWall(6, 3, -116, 1, 3, 10);
+    createWall(-14, 3, -116, 1, 3, 10);
+    createWall(-4, 3, -125, 9, 3, 1);
+    createWall(-2, 3, -107, 7, 3, 1);
+
+    stairs(-1, 1, -118);
+
+    createRoof(-4, 7, -111, 11, 1, 5);
+    createRoof(6, 7, -120, 1, 1, 4);
+    createRoof(-9, 7, -121, 6, 1, 5);
+    createRoof(2, 7, -125, 5, 1, 1);
+
+    createWall(-14, 8.5, -116, 1, 0.5, 10);
+    createWall(-4, 8.5, -125, 9, 0.5, 1);
+    createWall(-4, 8.5, -107, 9, 0.5, 1);
+
+    createBox(6, 11, -125, 0.5, 3, 0.5);
+    createBox(6, 11, -107, 0.5, 3, 0.5);
+    createBox(-14, 11.5, -125, 0.5, 2.5, 0.5);
+    createBox(-14, 11.5, -107, 0.5, 2.5, 0.5);
+
+    createRoof(-4, 15, -116, 11, 1, 10);
+
+}
+
+function stairs(x, y, z) {
+
+    createBox(x,     y,     z,     2, 1, 2);
+    createBox(x,     y + 1, z - 4, 2, 2, 2);
+    createBox(x + 4, y + 2, z - 4, 2, 3, 2);
+    createBox(x + 4, y + 3, z,     2, 4, 2);
+
+
+}
+
+function heaven() {
+
+    for (var i = 0; i < 6; i++) {
+
+        createBox(245, 3, -49.75 - 10 * i, 0.5, 3, 0.5);
+        createBox(237, 3, -49.75 - 10 * i, 0.5, 3, 0.5);
+
+    }
+
+    createBox(245, 3, -111.75, 0.5, 3, 0.5);
+    createBox(245, 3, -119.75, 0.5, 3, 0.5);
+
+    createWall(241, 7, -74, 6, 1, 36);
+
+    for (var i = 0; i < 23; i++) {
+
+        createBox(237.25 - i * 10, 3, -111.75, 0.5, 3, 0.5);
+        createBox(237.25 - i * 10, 3, -119.75, 0.5, 3, 0.5);
+
+    }
+
+    createWall(127, 7, -116, 120, 1, 6);
+}
+
+// x, y, z - koordinate objekta, kd, yd, zd - velikost objekta
+function createWall(x, y, z, xd, yd, zd) {
+
+    var halfExtents = new CANNON.Vec3(xd, yd, zd);
+    var boxShape = new CANNON.Box(halfExtents);
+    var boxGeometry = new THREE.BoxGeometry(xd * 2, yd * 2, zd * 2);
+
+    var boxBody = new CANNON.Body({ mass: 5000 });
+    boxBody.addShape(boxShape);
+    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+    var material2 = new THREE.MeshLambertMaterial( { color: "yellow" } );
+    var boxMesh = new THREE.Mesh( boxGeometry, material2 );
+    world.add(boxBody);
+    scene.add(boxMesh);
+    boxBody.position.set(x, y, z);
+    boxMesh.position.set(x, y, z);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+
+
+    boxes.push(boxBody);
+    boxMeshes.push(boxMesh);
+
+}
+
+function createRotatedWall(x, y, z, xd, yd, zd) {
+
+    var halfExtents = new CANNON.Vec3(xd, yd, zd);
+    var boxShape = new CANNON.Box(halfExtents);
+    var boxGeometry = new THREE.BoxGeometry(xd * 2, yd * 2, zd * 2);
+    // boxGeometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+
+    var boxBody = new CANNON.Body({ mass: 5000 });
+    boxBody.addShape(boxShape);
+    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+    var material2 = new THREE.MeshLambertMaterial( { color: "yellow" } );
+    var boxMesh = new THREE.Mesh( boxGeometry, material2 );
+    world.add(boxBody);
+    scene.add(boxMesh);
+    boxBody.position.set(x, y, z);
+    boxMesh.position.set(x, y, z);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+
+
+    boxes.push(boxBody);
+    boxMeshes.push(boxMesh);
+
+}
+
+function createBox(x, y, z, xd, yd, zd) {
+
+    createWall(x, y, z, xd, yd, zd);
+}
+
+function createRoof(x, y, z, xd, yd, zd) {
+
+    createWall(x, y, z, xd, yd, zd);
+}
