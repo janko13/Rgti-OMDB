@@ -5,7 +5,7 @@
  var PointerLockControls = function ( camera, cannonBody ) {
 
     var eyeYPos = 2; // eyes are 2 meters above the ground
-    var velocityFactor = 1.2;
+    var velocityFactor = 0.4;
     var jumpVelocity = 20;
     var scope = this;
 
@@ -559,9 +559,9 @@ window.addEventListener("click",function(e){
 
 function loadWorld() {
 
-    createWall(-10, 3, -10, 25, 3, 1);
-    createWall(-10, 3, 10, 25, 3, 1);
-    createWall(-10, 7, 0, 25, 1, 10);
+    createWall(10, 3, 0, 1, 3, 10);
+    createWall(-10, 3, 0, 1, 3, 10);
+    createWall(0, 7, 0, 11, 1, 10);
 
     whiteHouse();
     heaven();
@@ -653,6 +653,43 @@ function heaven() {
     }
 
     createWall(127, 7, -116, 120, 1, 6);
+	
+	//ograja dolgi most
+	for (var i = 0; i < 114; i++) {
+        createFance(233.9 - 2*i, 8.5, -110.9, 0.1, 0.5, 0.1,50);
+        createFance(233.9 - 2*i, 8.5, -121.1, 0.1, 0.5, 0.1,50);
+    }
+	createFance(121, 9.1, -121.1, 114, 0.1, 0.1,50);
+	createFance(121, 9.1, -110.9, 114, 0.1, 0.1,50);
+	
+	//ograja kratki most
+	for (var i = 0; i < 35; i++) {
+        createFance(235.9, 8.5, -39.9-2*i, 0.1, 0.5, 0.1,50);
+        createFance(246.1, 8.5, -39.9-2*i, 0.1, 0.5, 0.1,50);
+    }
+	createFance(235.9, 9.1, -74, 0.1, 0.1, 36,50);
+	createFance(246.1, 9.1, -74, 0.1, 0.1, 36,50);
+	
+	//sredinska kucica
+	createBox(235.5, 11,-121.5, 0.5, 3, 0.5);
+	createBox(235.5, 11,-110.5, 0.5, 3, 0.5);
+	createBox(246.5, 11,-121.5, 0.5, 3, 0.5);
+	createBox(246.5, 11,-110.5, 0.5, 3, 0.5);
+	
+	for (var i = 0; i < 5; i++) {
+		createFance(244.9-2*i, 8.5, -121.1, 0.1, 0.5, 0.1,50);
+        createFance(246.1, 8.5,-119.9+2*i , 0.1, 0.5, 0.1,50);
+	}
+	createFance(246.1, 9.1, -116, 0.1, 0.1, 5,50);
+	createFance(241, 9.1, -121.1, 5, 0.1, 0.1,50);
+	
+	for(var i = 0; i < 11; i++){
+		createFance(241,14.25+i*0.5,-116,6-i*0.5,0.25,6-i*0.5,50);
+	}
+	
+	//TESTIRNE
+	stairs(227, 1, -74);
+	
 }
 
 // x, y, z - koordinate objekta, kd, yd, zd - velikost objekta
@@ -663,6 +700,30 @@ function createWall(x, y, z, xd, yd, zd) {
     var boxGeometry = new THREE.BoxGeometry(xd * 2, yd * 2, zd * 2);
 
     var boxBody = new CANNON.Body({ mass: 5000 });
+    boxBody.addShape(boxShape);
+    var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
+    var material2 = new THREE.MeshLambertMaterial( { color: "yellow" } );
+    var boxMesh = new THREE.Mesh( boxGeometry, material2 );
+    world.add(boxBody);
+    scene.add(boxMesh);
+    boxBody.position.set(x, y, z);
+    boxMesh.position.set(x, y, z);
+    boxMesh.castShadow = true;
+    boxMesh.receiveShadow = true;
+
+
+    boxes.push(boxBody);
+    boxMeshes.push(boxMesh);
+
+}
+
+function createFance(x, y, z, xd, yd, zd,w) {
+
+    var halfExtents = new CANNON.Vec3(xd, yd, zd);
+    var boxShape = new CANNON.Box(halfExtents);
+    var boxGeometry = new THREE.BoxGeometry(xd * 2, yd * 2, zd * 2);
+
+    var boxBody = new CANNON.Body({ mass: w });
     boxBody.addShape(boxShape);
     var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
     var material2 = new THREE.MeshLambertMaterial( { color: "yellow" } );
