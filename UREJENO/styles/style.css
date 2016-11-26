@@ -66,3 +66,14 @@ body {
     width:200px;
     height:90px;
 }
+#aim {
+    font-size:30px;
+}
+
+.no-select {
+    -moz-user-select: none; 
+    -webkit-user-select: none; 
+    -ms-user-select:none; 
+    user-select:none;
+    -o-user-select:none;
+}

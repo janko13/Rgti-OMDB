@@ -379,11 +379,11 @@ function animate() {
     else if (ai.length == 0 && GAME) {
         blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
         
-        var num = clock.getElapsedTime().toFixed();
+        var num = remain - clock.getElapsedTime().toFixed();
         clock.stop();
         console.log(num);
         if (GAME) score += num * 10;
-        end.innerHTML = "Congratulations, You have killed all terrorists!!! Trump has been saved. Your score is " + score + ".";
+        end.innerHTML = "Congratulations, You have killed all terrorists!!! Trump has been saved. Time: " + clock.getElapsedTime().toFixed(); + " seconds. Your score is " + score + ".";
         end.style.display = '';
         hide.style.display = 'block';
         GAME = false;
@@ -510,15 +510,10 @@ function moveAI(a, i) {
         ind = true;
     }
 
-        a.translateX(aispeed*0.1*a.lastRandomX);// * 
-        a.translateZ(aispeed*0.1*a.lastRandomZ);// * 
+    a.translateX(aispeed * 0.2 * a.lastRandomX);
+
+    a.translateZ(aispeed * 0.2 * a.lastRandomZ); 
     
-    /*
-    if (c.x < -1 || c.x > mapW || c.z < -1 || c.z > mapH) {
-        ai.splice(i, 1);
-        scene.remove(a);
-        addAI();
-    }*/
 
     var cc = controls.getObject().position;
 
