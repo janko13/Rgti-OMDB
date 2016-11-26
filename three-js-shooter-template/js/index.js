@@ -5,7 +5,7 @@
  var PointerLockControls = function ( camera, cannonBody ) {
 
     var eyeYPos = 2; // eyes are 2 meters above the ground
-    var velocityFactor = 0.4;
+    var velocityFactor = 0.8;
     var jumpVelocity = 20;
     var scope = this;
 
@@ -328,7 +328,7 @@ function initCannon(){
 
 	// Create a sphere
 	
-	var mass = 5, radius = 1.3;
+	var mass = 100, radius = 1.0;
 	sphereShape = new CANNON.Sphere(radius);
 	sphereBody = new CANNON.Body({
 		mass: mass,
@@ -517,7 +517,7 @@ function animate() {
 var ballShape = new CANNON.Sphere(0.2);
 var ballGeometry = new THREE.SphereGeometry(ballShape.radius, 32, 32);
 var shootDirection = new THREE.Vector3();
-var shootVelo = 35;
+var shootVelo = 300;
 var projector = new THREE.Projector();
 function getShootDir(targetVec){
 	var vector = targetVec;
@@ -535,7 +535,7 @@ window.addEventListener("click",function(e){
 		var ballBody = new CANNON.Body({ mass: 1 });
 		ballBody.addShape(ballShape);
 		var randomColor = '#' + (Math.random() * 0xFFFFFF << 0).toString(16);
-		material2 = new THREE.MeshPhongMaterial( { color: "yellow" } );
+		material2 = new THREE.MeshPhongMaterial( { color: "black" } );
 		var ballMesh = new THREE.Mesh( ballGeometry, material2 );
 		world.add(ballBody);
 		scene.add(ballMesh);
@@ -558,18 +558,85 @@ window.addEventListener("click",function(e){
 });
 
 function loadWorld() {
-
-    createWall(10, 3, 0, 1, 3, 10);
-    createWall(-10, 3, 0, 1, 3, 10);
-    createWall(0, 7, 0, 11, 1, 10);
-
     whiteHouse();
     heaven();
     tower();
+	theWall();
+	garage();
+	swamp();
+}
 
+function theWall(){
+	createWallOut(-30,20,-60,2,20,90);
+	createWallOut(270,20,-60,2,20,90);
+	createWallOut(120,20,28,148,20,2);
+	createWallOut(120,20,-148,148,20,2);
+}
 
+function garage(){
+	createWall(10, 3, 0, 1, 3, 10);
+    createWall(-10, 3, 0, 1, 3, 10);
+    createWall(0, 7, 0, 11, 1, 10);
+	
+}
 
-
+function swamp(){
+	//-20 x 20  -20 z -100
+	//vzdovzne
+	createWall(0, 2, -55,13, 2, 1);
+	createWall(-15, 2, -40,13, 2, 1);
+	createWall(-5, 2, -20,13, 2, 1);
+	
+	//navpicne
+	createWall(14, 2, -45,1, 2, 18);
+	
+	//kocke
+	
+	//20 x 180  -20 z -100
+	//navpicne
+	createWall(120, 2, -80,1, 2, 18);
+	createWall(62, 2, -55,1, 2, 18);
+	createWall(88, 2, -30,1, 2, 13);
+	createWall(35, 2, -44,1, 2, 10);
+	createWall(160, 2, -80,1, 2, 9);
+	createWall(175, 2, -80,1, 2, 18);
+	createWall(141, 2, -35,1, 2, 15);
+	createWall(165, 2, -35,1, 2, 15);
+	
+	//vzdovzne
+	createWall(55, 2, -38,13, 2, 1);
+	createWall(70, 2, -74,13, 2, 1);
+	createWall(129, 2, -20,13, 2, 1);
+	createWall(129, 2, -50,13, 2, 1);
+	
+	createWall(165, 2, -20,13, 2, 1);
+	createWall(165, 2, -50,13, 2, 1);
+	
+	//kocke
+	createBox(21, 1, -75, 1, 1, 1);
+	createBox(35, 1, -33, 1, 1, 1);
+	createBox(65, 1, -74, 1, 1, 1);
+	createBox(77, 1, -80, 1, 1, 1);
+	createBox(150, 1, -57, 1, 1, 1);
+	
+	//20 x 180  20 z -20
+	//navpicne
+	createWall(120, 2, 0,1, 2, 18);
+	createWall(80, 2, 8,1, 2, 18);
+	createWall(55, 2, 4,1, 2, 13);
+	createWall(30, 2, -10,1, 2, 10);
+	createWall(160, 2, 8,1, 2, 9);
+	createWall(175, 2, 8,1, 2, 18);
+	
+	//vzdovzne
+	
+	//kocke
+	createBox(21, 1, 15, 1, 1, 1);
+	createBox(35, 1, 1, 1, 1, 1);
+	createBox(65, 1, -13, 1, 1, 1);
+	createBox(77, 1, -17, 1, 1, 1);
+	createBox(150, 1, 17, 1, 1, 1);
+	
 }
 
 function whiteHouse() {
@@ -577,7 +644,7 @@ function whiteHouse() {
     createWall(200, 3, 0, 1, 3, 15);
     createWall(225, 3, 16, 26, 3, 1);
     createWall(250, 3, -10, 1, 3, 25);
-    createWall(230, 3, -25, 1, 3, 11);
+    createWall(230, 3, -26, 1, 3, 10);
 
     createWall(223, 2, -15, 8, 2, 1);
     createWall(205, 2, -15, 6, 2, 1);
@@ -589,8 +656,31 @@ function whiteHouse() {
 
     // steber
     createBox(200, 3, -35, 1, 3, 1);
-
-    createRoof(225, 7, -10, 28, 1, 28);
+	
+	stairs(220,1 ,0 );
+	//streha
+	createRoof(239.5, 7, 6, 13.5, 1, 12);
+	createRoof(211.5, 7, 10, 14.5, 1, 8);
+	createRoof(207.5, 7, -18, 10.5, 1, 20);
+	createRoof(235.5, 7, -22, 17.5, 1, 16);
+	
+	createWall(225, 8.5, 17.5, 28, 0.5, 0.5);
+	createWall(197.5, 8.5, -10, 0.5, 0.5, 27);
+	createWall(252.5, 8.5, -10, 0.5, 0.5, 27);
+	createWall(216.5, 8.5, -37.5, 19.5, 0.5, 0.5);
+	createWall(249.5, 8.5, -37.5, 3.5, 0.5, 0.5);
+	
+	//kucica na strehi
+	
+	createWall(213, 11, -2, 1, 3, 10);
+	createWall(231, 11, -2, 1, 3, 10);
+	createWall(222, 11, -11, 8, 3, 1);
+	//vrata
+	createWall(220, 11, 7, 6, 3, 1);
+	
+	createRoof(222, 15, -2, 10, 1, 10);
+	
+	
 
 }
 
@@ -607,13 +697,15 @@ function tower() {
     createRoof(6, 7, -120, 1, 1, 4);
     createRoof(-9, 7, -121, 6, 1, 5);
     createRoof(2, 7, -125, 5, 1, 1);
-
+		
     createWall(-14, 8.5, -116, 1, 0.5, 10);
     createWall(-4, 8.5, -125, 9, 0.5, 1);
     createWall(-4, 8.5, -107, 9, 0.5, 1);
+	createWall(6, 8.5, -108.5, 1, 0.5, 2.5);
+	createWall(6, 8.5, -123.5, 1, 0.5, 2.5);
 
-    createBox(6, 11, -125, 0.5, 3, 0.5);
-    createBox(6, 11, -107, 0.5, 3, 0.5);
+    createBox(6, 11.5, -125, 0.5, 2.5, 0.5);
+    createBox(6, 11.5, -107, 0.5, 2.5, 0.5);
     createBox(-14, 11.5, -125, 0.5, 2.5, 0.5);
     createBox(-14, 11.5, -107, 0.5, 2.5, 0.5);
 
@@ -627,7 +719,6 @@ function stairs(x, y, z) {
     createBox(x,     y + 1, z - 4, 2, 2, 2);
     createBox(x + 4, y + 2, z - 4, 2, 3, 2);
     createBox(x + 4, y + 3, z,     2, 4, 2);
-
 
 }
 
@@ -653,22 +744,12 @@ function heaven() {
     }
 
     createWall(127, 7, -116, 120, 1, 6);
-	
-	//ograja dolgi most
-	for (var i = 0; i < 114; i++) {
-        createFance(233.9 - 2*i, 8.5, -110.9, 0.1, 0.5, 0.1,50);
-        createFance(233.9 - 2*i, 8.5, -121.1, 0.1, 0.5, 0.1,50);
-    }
-	createFance(121, 9.1, -121.1, 114, 0.1, 0.1,50);
-	createFance(121, 9.1, -110.9, 114, 0.1, 0.1,50);
-	
-	//ograja kratki most
-	for (var i = 0; i < 35; i++) {
-        createFance(235.9, 8.5, -39.9-2*i, 0.1, 0.5, 0.1,50);
-        createFance(246.1, 8.5, -39.9-2*i, 0.1, 0.5, 0.1,50);
-    }
-	createFance(235.9, 9.1, -74, 0.1, 0.1, 36,50);
-	createFance(246.1, 9.1, -74, 0.1, 0.1, 36,50);
+
+	createWall(121, 8.5, -121.5, 114, 0.5, 0.5);
+	createWall(121, 8.5, -110.5, 114, 0.5, 0.5);
+
+	createWall(235.5, 8.5, -74, 0.5, 0.5, 36);
+	createWall(246.5, 8.5, -74, 0.5, 0.5, 36);
 	
 	//sredinska kucica
 	createBox(235.5, 11,-121.5, 0.5, 3, 0.5);
@@ -676,19 +757,16 @@ function heaven() {
 	createBox(246.5, 11,-121.5, 0.5, 3, 0.5);
 	createBox(246.5, 11,-110.5, 0.5, 3, 0.5);
 	
-	for (var i = 0; i < 5; i++) {
-		createFance(244.9-2*i, 8.5, -121.1, 0.1, 0.5, 0.1,50);
-        createFance(246.1, 8.5,-119.9+2*i , 0.1, 0.5, 0.1,50);
-	}
-	createFance(246.1, 9.1, -116, 0.1, 0.1, 5,50);
-	createFance(241, 9.1, -121.1, 5, 0.1, 0.1,50);
+
+	createWall(246.5, 8.5, -116, 0.5, 0.5, 5);
+	createWall(241, 8.5, -121.5, 5, 0.5, 0.5);
 	
 	for(var i = 0; i < 11; i++){
 		createFance(241,14.25+i*0.5,-116,6-i*0.5,0.25,6-i*0.5,50);
 	}
 	
 	//TESTIRNE
-	stairs(227, 1, -74);
+	stairs(229, 1, -74);
 	
 }
 
@@ -741,12 +819,12 @@ function createFance(x, y, z, xd, yd, zd,w) {
 
 }
 
-function createRotatedWall(x, y, z, xd, yd, zd) {
+function createWallOut(x, y, z, xd, yd, zd) {
 
     var halfExtents = new CANNON.Vec3(xd, yd, zd);
     var boxShape = new CANNON.Box(halfExtents);
-    var boxGeometry = new THREE.BoxGeometry(xd * 2, yd * 2, zd * 2);
-    // boxGeometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+	//to da teksturo na y/4
+    var boxGeometry = new THREE.BoxGeometry(xd * 2, yd /4, zd * 2);
 
     var boxBody = new CANNON.Body({ mass: 5000 });
     boxBody.addShape(boxShape);
@@ -756,7 +834,9 @@ function createRotatedWall(x, y, z, xd, yd, zd) {
     world.add(boxBody);
     scene.add(boxMesh);
     boxBody.position.set(x, y, z);
-    boxMesh.position.set(x, y, z);
+	
+	//to ti da pozicijo kje bo ta
+    boxMesh.position.set(x, y/8, z);
     boxMesh.castShadow = true;
     boxMesh.receiveShadow = true;
 
