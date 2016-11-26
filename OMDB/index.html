@@ -33,7 +33,7 @@
 
 			}
 
-			#instructions {
+			#instructions, #killed, #win {
 
 				width: 100%;
 				height: 100%;
@@ -60,6 +60,21 @@
 				cursor: pointer;
 
 			}
+            
+            #hud {
+                bottom: 10px;
+                position: absolute;
+                right: 10px;
+                z-index: 100;
+                padding:10px;
+            }
+            p {
+                background-color: #EEEEEE;
+                border: 1px solid black;
+                display: inline-block;
+                margin: 0;
+                padding: 5px;
+            }
 
 		</style>
 	</head>
@@ -69,10 +84,18 @@
 		<div id="blocker">
 
 			<div id="instructions">
-				<span style="font-size:40px">Click to play</span>
+                <h1>Over My Dead Body</h1><br />
+				<div style="font-size:40px">Click to play</div>
 				<br />
-				(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around)
+				(W, A, S, D = Move, SPACE = Jump, MOUSE = Look around, MOUSE CLICK = shoot)
 			</div>
+            <div id="killed">
+                <h1>Oh, no!!! You were killed! Terrorists have murdered Trump.</h1>
+            </div>
+            <div id="win">
+                <h1>Congratulations, You have killed all terrorists!!! Trump has been saved.</h1>
+            </div>
+            <div><p id="hud"></p></div>
 
 		</div>
         <script src="scripts/game.js"></script>

@@ -37,16 +37,20 @@ var geometry, material, mesh;
 var controls;
 //dodano: 
 var SPEED = 1000;
-var NUMAI = 5;
+var NUMAI = 3;
 var UNITSIZE = 40;
 var ai = [];
-var aispeed = 5;
+var aispeed = 4;
 var bullets = [];
 var health = 100;
 var mouse = { x: 0, y: 0 }
 var rayc = new THREE.Raycaster();
 var mapW = 20;
 var mapH = 20;
+var coordX = [150, 250, 600];
+var coordZ = [250, 250, 400];
+var GAME = true; //ali se igra poteka?
+
 //
 var objects = [];
 
@@ -69,6 +73,9 @@ var rays = [
 
 var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
+var killed = document.getElementById('killed');
+var win = document.getElementById('win');
+var hud = document.getElementById('hud');
 
 // http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
@@ -85,16 +92,16 @@ if (havePointerLock) {
             controlsEnabled = true;
             controls.enabled = true;
 
-            blocker.style.display = 'none';
+          //  blocker.style.display = 'none';
 
         } else {
 
             controls.enabled = false;
-
+            /*
             blocker.style.display = '-webkit-box';
             blocker.style.display = '-moz-box';
             blocker.style.display = 'box';
-
+            */
             instructions.style.display = '';
 
         }
@@ -118,8 +125,10 @@ if (havePointerLock) {
 
     instructions.addEventListener('click', function (event) {
 
+        blocker.style.backgroundColor = 'rgba(0,0,0,0)';
         instructions.style.display = 'none';
-
+        killed.style.display = 'none';
+        win.style.display = 'none';
         // Ask the browser to lock the pointer
         element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
 
@@ -186,7 +195,6 @@ function init() {
     });
     //
     scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0xffffff, 0, 750);
 
     var light = new THREE.HemisphereLight(0xeeeeff, 0x777788, 0.75);
     light.position.set(0.5, 1, 0.75);
@@ -196,8 +204,8 @@ function init() {
     scene.add(controls.getObject());
 
     //dodano: premik v stavbo na zacetku
-    controls.getObject().translateX(100);
-    controls.getObject().translateY(100);
+    controls.getObject().translateX(720);
+    controls.getObject().translateZ(650);
     setupAI();
     var onKeyDown = function (event) {
 
@@ -312,7 +320,7 @@ function animate() {
 
 
         var cameraDir = camera.getWorldDirection();
-        console.log(cameraDir.x + " " + cameraDir.y + " " + cameraDir.z);
+       // console.log(cameraDir.x + " " + cameraDir.y + " " + cameraDir.z);
         var collisions, distance = 15;
 
         for (var i = 0; i < rays.length; i++) {
@@ -324,13 +332,12 @@ function animate() {
             if (collisions.length > 0 && collisions[0].distance <= distance) {
                 //console.log("collision: " + i + " " + rays[i].x + " " + rays[i].y + " " + rays[i].z + " " + collisions[0].distance );
                 var dir = cameraDirection();
-                console.log("dir " + dir);
+                //console.log("dir " + dir);
                 collision(i, dir, collisions[0].object.position.x);
 
             }
 
         }
-        console.log("\n");
 
         if (controls.getObject().position.y  < 10) {
             velocity.y = 0;
@@ -367,14 +374,24 @@ function animate() {
         //dodano:premikanje sovraznikov
         for (var i = 0; i < ai.length; i++) {
             var a = ai[i];
+          //  console.log(i + "x: " + a.position.x + " z: " + a.position.z);
             moveAI(a, i);
         }
+        hud.innerHTML = "Healt: " + health;
         //
         prevTime = time;
 
     }
 
     renderer.render(scene, camera);
+    if (!(health > 0)) {
+        blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
+        killed.style.display = '';
+    }
+    else if (ai.length == 0) {
+        blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
+        win.style.display = '';
+    }
 
 }
 
@@ -446,18 +463,16 @@ function setupAI() {
         addAI(i);
     }
     //dodano:
-    // addPresident();
+     addPresident();
     //
 }
+
 function addAI(i) {
     var aiGeo = new THREE.CubeGeometry(40, 40, 40);
-    var c = getMapSector(camera.position);
     var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/face.png') });
     var o = new THREE.Mesh(aiGeo, aiMaterial);
-    var x = i;
-    var z = 0;
-    x = Math.floor(x - mapW / 2) * UNITSIZE;
-    z = Math.floor(z - mapW / 2) * UNITSIZE;
+    var x = coordX[i];
+    var z = coordZ[i]
     o.position.set(x, UNITSIZE * 0.5, z);
     o.health = 100;
     //o.path = getAIpath(o);
@@ -468,10 +483,17 @@ function addAI(i) {
     ai.push(o);
     scene.add(o);
 }
-function getMapSector(v) {
-    var x = Math.floor((v.x + UNITSIZE / 2) / UNITSIZE + mapW / 2);
-    var z = Math.floor((v.z + UNITSIZE / 2) / UNITSIZE + mapW / 2);
-    return { x: x, z: z };
+function addPresident() {
+    var aiGeo = new THREE.CubeGeometry(40, 40, 40);
+    var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/trump.png') });
+    var o = new THREE.Mesh(aiGeo, aiMaterial);
+    var x = 220;
+    var z = 150;
+    o.position.set(x, UNITSIZE * 0.5, z);
+    o.health = 50;
+    o.pathPos = 1;
+    //ai.push(o);
+    scene.add(o);
 }
 function getRandBetween(lo, hi) {
     return parseInt(Math.floor(Math.random() * (hi - lo + 1)) + lo, 10);
@@ -482,25 +504,30 @@ function moveAI(a, i) {
         a.lastRandomX = Math.random() * 2 - 1;
         a.lastRandomZ = Math.random() * 2 - 1;
     }
-    a.translateX(aispeed * a.lastRandomX);
-    a.translateZ(aispeed * a.lastRandomZ);
-    var c = getMapSector(a.position);
-    
-    if (c.x < 0 || c.x >= mapW || c.y < 0 || c.y >= mapH) { //dodaj collision!!
-        a.translateX(-2 * aispeed * a.lastRandomX);
-        a.translateZ(-2 * aispeed * a.lastRandomZ);
+   // 
+    var c = a.position;
+    if (Math.abs(c.x - coordX[i]) > 50 || Math.abs(c.z - coordZ[i]) > 50) { //dodaj collision!!
+        aispeed = -1 * aispeed;
+        a.translateX(aispeed * a.lastRandomX);
+        a.translateZ(aispeed * a.lastRandomZ);
         a.lastRandomX = Math.random() * 2 - 1;
         a.lastRandomZ = Math.random() * 2 - 1;
     }
+    else {
+        a.translateX(aispeed * a.lastRandomX);
+        a.translateZ(aispeed * a.lastRandomZ);
+    }
+    /*
     if (c.x < -1 || c.x > mapW || c.z < -1 || c.z > mapH) {
         ai.splice(i, 1);
         scene.remove(a);
         addAI();
-    }
+    }*/
 
-    var cc = getMapSector(controls.getObject().position);
+    var cc = controls.getObject().position;
 
-    if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 5) { //
+    if (Date.now() > a.lastShot + 750 && distance(c.x, c.z, cc.x, cc.z) < 205) { //
+        console.log("HAHA");
         createBullet(a);
         a.lastShot = Date.now();
     }
@@ -539,7 +566,7 @@ function createBullet(obj) {
     sphere.owner = obj;
     sphere.position.set(obj.position.x, obj.position.y, obj.position.z);
     bullets.push(sphere);
-    console.log(bullets.length);
+   // console.log(bullets.length);
     scene.add(sphere);
 
     return sphere;
@@ -550,13 +577,6 @@ function updateBullets() {
         
         var speed = 10;
         var hit = false;
-        /*
-        if (checkWallCollision(p)) {
-            bullets.splice(i, 1);
-            scene.remove(b);
-            continue;
-        }*/
-
         //DODAJ: zadet AI, zadet player
         // zadet player
         
@@ -595,7 +615,7 @@ function updateBullets() {
             b.translateX(speed * d.x);
             b.translateZ(speed * d.z);
         }
-        console.log(ai.length);
+       // console.log(ai.length);
     }
 }
 function distance(x1, z1, x2, z2) {
