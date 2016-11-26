@@ -469,7 +469,7 @@ function setupAI() {
 
 function addAI(i) {
     var aiGeo = new THREE.CubeGeometry(40, 40, 40);
-    var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/face.png') });
+    var aiMaterial = new THREE.MeshBasicMaterial({/*color: 0xEE3333,*/map: THREE.ImageUtils.loadTexture('images/mehican.jpg') });
     var o = new THREE.Mesh(aiGeo, aiMaterial);
     var x = coordX[i];
     var z = coordZ[i]
@@ -660,7 +660,7 @@ function createWorld(){
 	createWall(20,40,400,40,80,800);
 	createWall(780,40,400,40,80,800);
 	createWall(400,40,780,800,80,40);
-	createWall(400,40,20,600,80,40);
+	createWall(400,40,20,800,80,40);
 	
 	//notranje stene
 	createWall(100,40,380,120,80,20);
@@ -672,7 +672,13 @@ function createWorld(){
 	createWall(320,40,205,20,80,330);
 	createWall(130,40,630,20,80,80);
 	
+	//dodane
+	createWall(600,40,650,20,80,220);
+	createWall(600,40,530,100,80,20);
+	
+	
 	//stopnice
+	/*
 	for(var i = 0; i < 5 ; i++){
 		var x = 410 - i * 10 - 5;
 		var y = i * 10 + 5;
@@ -682,7 +688,8 @@ function createWorld(){
 		createWall(430, y , z  ,40,10,15);
 	}
 	
-	createWall(430,45,60,40,10,10);
+	createWall(430,45,55,40,10,30);
+	*/
 }
 
 function createWall(cx,cy,cz,dx,dy,dz){
