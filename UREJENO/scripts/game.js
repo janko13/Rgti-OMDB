@@ -19,6 +19,7 @@ var GAME = true; //ali se igra poteka?
 var clock = new THREE.Clock(false);
 var score = 0;
 var trump;
+var ind = true;
 //
 var objects = [];
 
@@ -43,6 +44,8 @@ var blocker = document.getElementById('blocker');
 var instructions = document.getElementById('instructions');
 var end = document.getElementById('end');
 var hud = document.getElementById('hud');
+var hide = document.getElementById('hide');
+
 
 // http://www.html5rocks.com/en/tutorials/pointerlock/intro/
 
@@ -147,7 +150,7 @@ var canJump = false;
 
 var prevTime = performance.now();
 var velocity = new THREE.Vector3();
-var remain = 50.0;
+var remain = 90.0;
 
 function init() {
     
@@ -200,7 +203,7 @@ function init() {
 
             case 32: // space
                 if (canJump === true){
-					velocity.y += 350;
+					velocity.y += 250;
 				} 			
                 canJump = false;
                 break;
@@ -348,12 +351,13 @@ function animate() {
         }
         var num = clock.getElapsedTime().toFixed();
         var r = remain - num;
-        if (r <= 0 && GAME) {
+        if (r <= 0) {
             clock.stop();
             r = 0;
             blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
-            end.innerHTML = "Oh, no!!! Time's up!! Terrorists have murdered Trump. You've lost! Your score is " + score + ".";
+            if (GAME) end.innerHTML = "Oh, no!!! Time's up!! Terrorists have murdered Trump. You've lost! Your score is " + score + ".";
             end.style.display = '';
+            hide.style.display = 'block';
             GAME = false;
         }
         hud.innerHTML = "Healt: " + health + "<br/>Remaining time: " + r + " s<br/>Score: " + score + "<br/>Terrorists to kill: " + ai.length;
@@ -370,6 +374,7 @@ function animate() {
         clock.stop();
         end.innerHTML = "Oh, no!!! You were killed! Terrorists have executed Trump. Your score is " + score + ".";
         end.style.display = '';
+        hide.style.display = 'block';
     }
     else if (ai.length == 0 && GAME) {
         blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
@@ -380,6 +385,7 @@ function animate() {
         if (GAME) score += num * 10;
         end.innerHTML = "Congratulations, You have killed all terrorists!!! Trump has been saved. Your score is " + score + ".";
         end.style.display = '';
+        hide.style.display = 'block';
         GAME = false;
     }
 
@@ -495,17 +501,18 @@ function moveAI(a, i) {
     }
    // 
     var c = a.position;
-    if (distance(c.x, c.z, coordX[i], coordZ[i]) > 40) { 
+
+    if (distance(c.x, c.z, coordX[i], coordZ[i]) > 50 && ind) { 
         aispeed = -1 * aispeed;
-        a.translateX(aispeed * a.lastRandomX);
-        a.translateZ(aispeed * a.lastRandomZ);
-        a.lastRandomX = Math.random() * 2 - 1;
-        a.lastRandomZ = Math.random() * 2 - 1;
+        ind = false;
     }
-    else {
-        a.translateX(aispeed * a.lastRandomX);
-        a.translateZ(aispeed * a.lastRandomZ);
+    if (distance(c.x, c.z, coordX[i], coordZ[i]) < 30 && !ind) {
+        ind = true;
     }
+
+        a.translateX(aispeed*0.1*a.lastRandomX);// * 
+        a.translateZ(aispeed*0.1*a.lastRandomZ);// * 
+    
     /*
     if (c.x < -1 || c.x > mapW || c.z < -1 || c.z > mapH) {
         ai.splice(i, 1);
@@ -524,6 +531,8 @@ function moveAI(a, i) {
 function AIdeath(a, i) {
     if (a.health <= 0) {
         ai.splice(i, 1);
+        coordX.splice(i, 1);
+        coordZ.splice(i, 1);
         scene.remove(a);
         score += 100;
     }
@@ -581,7 +590,7 @@ function updateBullets() {
             var c = a.position;
             var x = Math.abs(v.x), z = Math.abs(v.z);
             //console.log(Math.round(p.x), Math.round(p.z), c.x, c.z, x, z);
-            if (p.x < c.x + x && p.x > c.x - x && p.z < c.z + z && p.z > c.z - z && b.owner != a && distance(c.x, c.z, me.x, me.z) < 250) {
+            if (p.x < c.x + x && p.x > c.x - x && p.z < c.z + z && p.z > c.z - z && b.owner != a && distance(c.x, c.z, me.x, me.z) < 350) {
                 bullets.splice(i, 1);
                 scene.remove(b);
                 a.health -= 50;
@@ -598,7 +607,7 @@ function updateBullets() {
         
         var x = Math.abs(v.x), z = Math.abs(v.z);
         //console.log(Math.round(p.x), Math.round(p.z), c.x, c.z, x, z);
-        if (p.x < c.x + x && p.x > c.x - x && p.z < c.z + z && p.z > c.z - z && distance(c.x, c.z, me.x, me.z) < 250 && GAME) {
+        if (p.x < c.x + x && p.x > c.x - x && p.z < c.z + z && p.z > c.z - z && distance(c.x, c.z, me.x, me.z) < 350 && GAME) {
             GAME = false;
             blocker.style.backgroundColor = 'rgba(0,0,0,0.9)';
             clock.stop();
@@ -606,6 +615,7 @@ function updateBullets() {
             health = 1;
             end.innerHTML = "You've killed Trump!!! American agents will execute you. Your score is 0.";
             end.style.display = '';
+            hide.style.display = 'block';
             break;
         }
 
